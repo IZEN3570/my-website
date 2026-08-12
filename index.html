@@ -7,7 +7,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&family=CormorGaramondant+:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -30,6 +30,7 @@
     --shadow-deep: 0 40px 80px -30px rgba(0,0,0,0.85);
     --danger: #e74c3c;
     --danger-hover: #c0392b;
+    --success: #2ecc71;
   }
 
   *{ box-sizing:border-box; margin:0; padding:0; }
@@ -247,7 +248,6 @@
     text-transform:uppercase; clip-path:polygon(12% 0,100% 0,100% 100%,0 100%);
   }
 
-  /* ปุ่มการจัดการของการ์ด (แก้ไข / ลบ) */
   .card-actions{
     position:absolute; bottom:16px; right:16px; z-index:4;
     display:flex; gap:8px;
@@ -286,13 +286,82 @@
   .card-rule{ width:30px; height:1px; background:var(--gold); margin:14px 0 0; transition:width .5s cubic-bezier(.2,.8,.2,1); }
   .data-card:hover .card-rule{ width:60px; }
 
+  /* ================= EXCEL FINANCIAL TABLE DESIGN ================= */
+  .excel-wrapper{
+    background:var(--panel-solid);
+    border:1px solid var(--hairline-strong);
+    padding:24px; border-radius:4px; margin-bottom:40px;
+    box-shadow:var(--shadow-deep);
+  }
+  .excel-summary-cards{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:18px; margin-bottom:24px;
+  }
+  .summary-card{
+    background:rgba(255,255,255,0.02); border:1px solid var(--hairline); padding:16px 20px; border-radius:3px;
+  }
+  .summary-card .lbl{ font-size:0.75rem; letter-spacing:1px; color:var(--muted); text-transform:uppercase; }
+  .summary-card .val{ font-size:1.4rem; font-weight:600; margin-top:6px; color:var(--gold-bright); }
+  .summary-card.inc .val{ color:var(--success); }
+  .summary-card.exp .val{ color:var(--danger); }
+
+  .table-responsive{ overflow-x:auto; }
+  .excel-table{
+    width:100%; border-collapse:collapse; font-size:0.92rem; text-align:left;
+  }
+  .excel-table th{
+    background:rgba(212,175,122,0.08); color:var(--gold-bright); border:1px solid var(--hairline-strong);
+    padding:14px 16px; font-weight:600; letter-spacing:1px; font-size:0.8rem; text-transform:uppercase;
+  }
+  .excel-table td{
+    border:1px solid var(--hairline); padding:12px 16px; color:var(--ivory);
+  }
+  .excel-table tr:hover td{ background:rgba(212,175,122,0.03); }
+  .type-badge{
+    display:inline-block; padding:3px 10px; font-size:0.72rem; font-weight:600; border-radius:2px; text-transform:uppercase;
+  }
+  .type-badge.inc{ background:rgba(46,204,113,0.15); color:var(--success); border:1px solid rgba(46,204,113,0.3); }
+  .type-badge.exp{ background:rgba(231,76,60,0.15); color:var(--danger); border:1px solid rgba(231,76,60,0.3); }
+
+  /* ================= CALENDAR DESIGN ================= */
+  .calendar-wrapper{
+    background:var(--panel-solid); border:1px solid var(--hairline-strong);
+    padding:30px; border-radius:4px; margin-bottom:50px; box-shadow:var(--shadow-deep);
+  }
+  .calendar-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
+  .calendar-header h2{ font-size:1.5rem; color:var(--gold-bright); font-weight:500; }
+  .btn-cal-nav{
+    background:transparent; border:1px solid var(--hairline-strong); color:var(--gold);
+    width:36px; height:36px; border-radius:50%; cursor:pointer; transition:all .3s;
+  }
+  .btn-cal-nav:hover{ background:var(--gold); color:var(--black); }
+
+  .calendar-grid{ display:grid; grid-template-columns:repeat(7, 1fr); gap:8px; text-align:center; }
+  .cal-day-head{ padding:10px 0; color:var(--gold); font-size:0.82rem; font-weight:600; text-transform:uppercase; letter-spacing:1px; }
+  .cal-day-cell{
+    min-height:95px; background:rgba(255,255,255,0.015); border:1px solid var(--hairline);
+    padding:8px; position:relative; transition:all .25s; display:flex; flex-direction:column; align-items:flex-start;
+  }
+  .cal-day-cell.empty{ background:transparent; border:none; }
+  .cal-day-cell:hover:not(.empty){ border-color:var(--gold); background:rgba(212,175,122,0.04); }
+  .cal-num{ font-size:0.85rem; font-weight:600; color:var(--muted); margin-bottom:6px; }
+  .cal-day-cell.today .cal-num{ color:var(--gold-bright); font-weight:bold; }
+
+  .event-mark-badge{
+    width:100%; background:rgba(231, 76, 60, 0.18); border:1px solid var(--danger);
+    border-left:3px solid var(--danger); color:#ffbcbc; padding:4px 6px; font-size:0.75rem;
+    border-radius:2px; text-align:left; cursor:pointer; margin-top:4px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    transition:all .25s; display:flex; align-items:center; gap:5px;
+  }
+  .event-mark-badge i{ color:var(--danger); font-size:8px; }
+  .event-mark-badge:hover{ background:var(--danger); color:#fff; transform:translateY(-1px); box-shadow:0 4px 12px rgba(231,76,60,0.4); }
+
   /* ================= FORM ================= */
   .form-wrap{ display:flex; justify-content:center; padding-top:70px; }
   .form-card{
     background:var(--panel-solid); border:1px solid var(--hairline);
     padding:52px 46px; max-width:620px; width:100%; position:relative;
-    box-shadow:var(--shadow-deep);
-    animation:riseIn .7s cubic-bezier(.2,.8,.2,1) both;
+    box-shadow:var(--shadow-deep); animation:riseIn .7s cubic-bezier(.2,.8,.2,1) both;
   }
   .form-card::before{
     content:''; position:absolute; top:0; left:0; right:0; height:3px;
@@ -306,9 +375,7 @@
     position:absolute; left:18px; top:16px; color:var(--muted); font-size:14.5px;
     transition:all .25s cubic-bezier(.2,.8,.2,1); pointer-events:none; background:var(--panel-solid); padding:0 6px;
   }
-  .form-group.select-group label{
-    top:-9px; left:14px; font-size:11.5px; color:var(--gold); letter-spacing:1px;
-  }
+  .form-group.select-group label{ top:-9px; left:14px; font-size:11.5px; color:var(--gold); letter-spacing:1px; }
   .form-control{
     width:100%; padding:16px 18px; background:rgba(255,255,255,0.02);
     border:1px solid var(--hairline-strong); color:var(--ivory); font-size:15px;
@@ -317,9 +384,7 @@
   select.form-control option{ background:#0d0d13; color:var(--ivory); padding:10px; }
   .form-control:focus{ border-color:var(--gold); box-shadow:0 0 0 3px rgba(212,175,122,0.14); background:rgba(212,175,122,0.03); }
   .form-control:focus + label,
-  .form-control:not(:placeholder-shown) + label{
-    top:-9px; left:14px; font-size:11.5px; color:var(--gold); letter-spacing:1px;
-  }
+  .form-control:not(:placeholder-shown) + label{ top:-9px; left:14px; font-size:11.5px; color:var(--gold); letter-spacing:1px; }
   textarea.form-control{ height:120px; resize:vertical; }
 
   .file-drop-zone{
@@ -352,21 +417,13 @@
   }
   .modal-overlay.active{ opacity:1; visibility:visible; }
 
-  /* Lightbox รูปภาพเต็มจอ */
-  .lightbox-content{
-    max-width:90vw; max-height:85vh; position:relative;
-    transform:scale(0.9); transition:transform .35s cubic-bezier(.2,.8,.2,1);
-  }
+  .lightbox-content{ max-width:90vw; max-height:85vh; position:relative; transform:scale(0.9); transition:transform .35s cubic-bezier(.2,.8,.2,1); }
   .modal-overlay.active .lightbox-content{ transform:scale(1); }
   .lightbox-content img{ max-width:100%; max-height:85vh; border:1px solid var(--hairline-strong); box-shadow:var(--shadow-deep); object-fit:contain; }
 
-  .modal-close{
-    position:absolute; top:-40px; right:0; color:var(--gold); font-size:24px; cursor:pointer;
-    transition:color .25s;
-  }
+  .modal-close{ position:absolute; top:-40px; right:0; color:var(--gold); font-size:24px; cursor:pointer; transition:color .25s; z-index:10; }
   .modal-close:hover{ color:var(--gold-bright); }
 
-  /* Modal แก้ไขข้อมูล */
   .edit-modal-card{
     background:var(--panel-solid); border:1px solid var(--hairline-strong);
     padding:40px; max-width:550px; width:100%; position:relative;
@@ -374,11 +431,19 @@
   }
   .modal-overlay.active .edit-modal-card{ transform:translateY(0); }
 
-  /* ================= LOADING / EMPTY / ERROR ================= */
-  .shimmer{
-    background:linear-gradient(100deg, rgba(255,255,255,0.02) 0%, rgba(212,175,122,0.12) 50%, rgba(255,255,255,0.02) 100%);
-    background-size:200% 100%; animation:shimmerMove 1.6s infinite;
+  .event-modal-card{
+    background:var(--panel-solid); border:1px solid var(--hairline-strong);
+    max-width:650px; width:100%; position:relative; overflow:hidden;
+    box-shadow:var(--shadow-deep); transform:scale(0.92); transition:transform .35s; border-radius:4px;
   }
+  .modal-overlay.active .event-modal-card{ transform:scale(1); }
+  .event-modal-img{ width:100%; height:320px; object-fit:cover; border-bottom:1px solid var(--hairline-strong); display:block; }
+  .event-modal-body{ padding:30px 32px 36px; }
+  .event-modal-body .eyebrow{ opacity:1; margin-bottom:12px; }
+  .event-modal-body h2{ font-size:1.8rem; color:var(--gold-bright); margin-bottom:16px; font-weight:500; }
+  .event-modal-body p{ color:var(--ivory); font-size:1rem; line-height:1.8; opacity:0.9; white-space:pre-line; }
+
+  .shimmer{ background:linear-gradient(100deg, rgba(255,255,255,0.02) 0%, rgba(212,175,122,0.12) 50%, rgba(255,255,255,0.02) 100%); background-size:200% 100%; animation:shimmerMove 1.6s infinite; }
   @keyframes shimmerMove{ 0%{ background-position:-200% 0; } 100%{ background-position:200% 0; } }
   .loading-card{ height:330px; border:1px solid var(--hairline); }
 
@@ -393,6 +458,10 @@
     .brandmark .tag{ display:none; }
     .form-card{ padding:38px 24px; }
     .hero-banner{ padding:70px 16px 50px; }
+    .event-modal-img{ height:220px; }
+    .event-modal-body{ padding:20px; }
+    .cal-day-cell{ min-height:65px; padding:4px; }
+    .event-mark-badge{ font-size:0.65rem; padding:2px 4px; }
   }
 
   @media (prefers-reduced-motion: reduce){
@@ -433,7 +502,6 @@
         <i class="fa-solid fa-chevron-down"></i>
       </button>
       <div class="dropdown-content">
-        <!-- เมนูหลักระบบเดิม -->
         <a onclick="switchTab('presentation')">
           <div class="item-main"><i class="fa-solid fa-grip-vertical"></i> <span>หน้าหลัก (Presentation)</span></div>
         </a>
@@ -444,7 +512,6 @@
         <div class="dropdown-divider"></div>
         <div class="dropdown-header">Club Modules</div>
 
-        <!-- รายการเมนูทั้งหมด 14 รายการ -->
         <a onclick="switchTab('dashboard')">
           <div class="item-main"><i class="fa-solid fa-border-all"></i> <span>DASHBOARD</span></div>
           <span class="sub-text">เข้าสู่บ้าน</span>
@@ -546,9 +613,8 @@
           <div class="eyebrow">Concierge Submission</div>
           <h2 class="serif">เพิ่มข้อมูลใหม่เข้าระบบ</h2>
 
-          <!-- ตัวเลือกระบบหมวดหมู่เป้าหมาย -->
           <div class="form-group select-group">
-            <select id="inputCategory" class="form-control">
+            <select id="inputCategory" class="form-control" onchange="toggleFinanceFormFields(this.value)">
               <option value="presentation">หน้าหลัก (Presentation)</option>
               <option value="dashboard">DASHBOARD — เข้าสู่บ้าน</option>
               <option value="members">สมาชิก — CHARACTER DATABASE</option>
@@ -568,17 +634,32 @@
             <label>เลือกหมวดหมู่ / ระบบเป้าหมาย</label>
           </div>
 
+          <!-- ตัวเลือกเพิ่มเติมเฉพาะเมื่อเลือกหมวดการเงิน -->
+          <div id="financeOptions" style="display:none;">
+            <div class="form-group select-group">
+              <select id="inputFinanceType" class="form-control">
+                <option value="income">รายรับ (+)</option>
+                <option value="expense">รายจ่าย (-)</option>
+              </select>
+              <label>ประเภทธุรกรรมการเงิน</label>
+            </div>
+            <div class="form-group">
+              <input type="number" id="inputAmount" class="form-control" placeholder=" " step="any">
+              <label>จำนวนเงิน (บาท)</label>
+            </div>
+          </div>
+
           <div class="form-group">
             <input type="text" id="inputName" class="form-control" placeholder=" ">
-            <label>ชื่อโปรเจกต์ / หัวข้อเรื่อง</label>
+            <label id="lblName">ชื่อโปรเจกต์ / หัวข้อเรื่อง</label>
           </div>
 
           <div class="form-group">
             <textarea id="inputBio" class="form-control" placeholder=" "></textarea>
-            <label>คำบรรยาย / รายละเอียด</label>
+            <label id="lblBio">คำบรรยาย / รายละเอียด</label>
           </div>
 
-          <div class="form-group">
+          <div class="form-group" id="fileGroup">
             <div class="file-drop-zone" onclick="document.getElementById('inputFile').click()">
               <i class="fa-solid fa-file-image"></i>
               <p id="fileNameDisplay">คลิกเพื่อเลือกไฟล์รูปภาพ (ไม่บังคับ - PNG, JPG, WEBP)</p>
@@ -594,7 +675,7 @@
       </div>
     </div>
 
-    <!-- Generic Module Section สำหรับแสดงผลข้อมูลของหมวดหมู่ต่างๆ -->
+    <!-- Generic Module Section -->
     <div id="generic-module" class="tab-page">
       <div class="hero-banner">
         <div class="eyebrow" id="moduleSub">SUBTITLE</div>
@@ -603,15 +684,64 @@
         <div class="hero-divider"></div>
       </div>
 
-      <div class="grid-header">
-        <h2 class="serif">รายการข้อมูลในระบบ</h2>
-        <span id="moduleItemCount">Loading...</span>
+      <!-- ส่วนตารางปฏิทิน (แสดงเฉพาะ events) -->
+      <div id="calendarSection" class="calendar-wrapper" style="display:none;">
+        <div class="calendar-header">
+          <button class="btn-cal-nav" onclick="changeMonth(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+          <h2 id="calendarMonthTitle" class="serif">มีนาคม 2026</h2>
+          <button class="btn-cal-nav" onclick="changeMonth(1)"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
       </div>
 
-      <div id="moduleDataGrid" class="grid-container">
-        <div class="shimmer loading-card"></div>
-        <div class="shimmer loading-card"></div>
-        <div class="shimmer loading-card"></div>
+      <!-- ส่วนตาราง Excel การเงิน (แสดงเฉพาะ treasury) -->
+      <div id="excelSection" class="excel-wrapper" style="display:none;">
+        <div class="excel-summary-cards">
+          <div class="summary-card">
+            <div class="lbl">ยอดเงินคงเหลือสุทธิ</div>
+            <div class="val" id="netBalanceVal">฿0.00</div>
+          </div>
+          <div class="summary-card inc">
+            <div class="lbl">ยอดรวมรายรับ</div>
+            <div class="val" id="totalIncVal">฿0.00</div>
+          </div>
+          <div class="summary-card exp">
+            <div class="lbl">ยอดรวมรายจ่าย</div>
+            <div class="val" id="totalExpVal">฿0.00</div>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="excel-table">
+            <thead>
+              <tr>
+                <th style="width:70px;">ลำดับ</th>
+                <th>รายการ / หัวข้อ</th>
+                <th>รายละเอียด</th>
+                <th style="width:110px;">ประเภท</th>
+                <th style="width:140px; text-align:right;">จำนวนเงิน</th>
+                <th style="width:100px; text-align:center;">การจัดการ</th>
+              </tr>
+            </thead>
+            <tbody id="excelTableBody">
+              <!-- Excel Rows Generated Dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ส่วน Grid การ์ดทั่วไป (สำหรับหมวดอื่นๆ) -->
+      <div id="cardSection">
+        <div class="grid-header">
+          <h2 class="serif">รายการข้อมูลในระบบ</h2>
+          <span id="moduleItemCount">Loading...</span>
+        </div>
+
+        <div id="moduleDataGrid" class="grid-container">
+          <div class="shimmer loading-card"></div>
+          <div class="shimmer loading-card"></div>
+          <div class="shimmer loading-card"></div>
+        </div>
       </div>
     </div>
 
@@ -622,6 +752,19 @@
     <div class="lightbox-content" onclick="event.stopPropagation()">
       <div class="modal-close" onclick="closeImageModal()"><i class="fa-solid fa-xmark"></i></div>
       <img id="lightboxImg" src="" alt="Full Preview">
+    </div>
+  </div>
+
+  <!-- Event Detail Modal Pop-up -->
+  <div id="eventDetailModal" class="modal-overlay" onclick="closeEventDetailModal(event)">
+    <div class="event-modal-card" onclick="event.stopPropagation()">
+      <div class="modal-close" onclick="closeEventDetailModal()"><i class="fa-solid fa-xmark"></i></div>
+      <img id="eventModalImg" class="event-modal-img" src="" alt="Event Detail">
+      <div class="event-modal-body">
+        <div class="eyebrow"><i class="fa-solid fa-calendar-star" style="margin-right:6px;"></i> EVENT DETAILS</div>
+        <h2 id="eventModalTitle" class="serif">ชื่อกิจกรรม</h2>
+        <p id="eventModalBio">รายละเอียดกิจกรรม...</p>
+      </div>
     </div>
   </div>
 
@@ -661,21 +804,31 @@
   </div>
 
   <script>
-    // -------------------------------------------------------------
-    // ตั้งค่าเชื่อมต่อ SUPABASE
-    // -------------------------------------------------------------
     const SUPABASE_URL = 'https://yzlzkidgmwltivrejdfr.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_cqNDSfqzz5eUIqZ3tTE44A_iqWZwMw-';
 
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    // รูป Placeholder เริ่มต้นกรณีที่ผู้ใช้ไม่แนบไฟล์รูป
     const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80';
 
     let currentCategory = 'presentation';
-    let loadedDataCache = []; // เก็บ Data สำหรับการค้นหาอ้างอิงตอนแก้ไข
+    let loadedDataCache = [];
+    let calDate = new Date();
 
-    // [เปลี่ยนหน้า Tab พร้อม Animation และโหลดข้อมูลตามหมวดหมู่]
+    function toggleFinanceFormFields(category) {
+      const finOpt = document.getElementById('financeOptions');
+      const lblName = document.getElementById('lblName');
+      const lblBio = document.getElementById('lblBio');
+      if (category === 'treasury') {
+        finOpt.style.display = 'block';
+        lblName.innerText = 'รายการ / หัวข้อการเงิน';
+        lblBio.innerText = 'รายละเอียดการรับ-จ่าย';
+      } else {
+        finOpt.style.display = 'none';
+        lblName.innerText = 'ชื่อโปรเจกต์ / หัวข้อเรื่อง';
+        lblBio.innerText = 'คำบรรยาย / รายละเอียด';
+      }
+    }
+
     function switchTab(tabName) {
       document.querySelectorAll('.tab-page').forEach(page => page.classList.remove('active'));
       
@@ -692,7 +845,7 @@
         const titles = {
           dashboard: ['DASHBOARD', 'เข้าสู่บ้าน', 'แผงควบคุมและภาพรวมทั้งหมดขององค์กร'],
           members: ['สมาชิก', 'CHARACTER DATABASE', 'ฐานข้อมูลและประวัติสมาชิกทั้งหมดในสังกัด'],
-          treasury: ['การเงิน', 'CLUB TREASURY', 'ระบบบริหารจัดการคลังและการเงินประจำคลับ'],
+          treasury: ['การเงิน', 'CLUB TREASURY', 'ระบบบัญชี การเงิน สเปรดชีตสไตล์ Excel'],
           welfare: ['สวัสดิการ', 'WELFARE', 'ระบบสวัสดิการและการดูแลสมาชิก'],
           missions: ['ภารกิจ', 'MISSIONS', 'รายการภารกิจและเป้าหมายที่ต้องดำเนินการ'],
           events: ['กิจกรรม', 'EVENTS', 'ตารางกิจกรรมและงานอีเวนต์ที่กำลังจะมาถึง'],
@@ -713,11 +866,16 @@
         }
         genericTab.classList.add('active');
         currentCategory = tabName;
+
+        // สลับมุมมองตามหมวดหมู่
+        document.getElementById('calendarSection').style.display = (tabName === 'events') ? 'block' : 'none';
+        document.getElementById('excelSection').style.display = (tabName === 'treasury') ? 'block' : 'none';
+        document.getElementById('cardSection').style.display = (tabName === 'treasury') ? 'none' : 'block';
+
         loadDataFromDB(tabName);
       }
     }
 
-    // [แสดงชื่อไฟล์รูปที่เลือกใน Drop Zone]
     function updateFileName(input) {
       const display = document.getElementById('fileNameDisplay');
       if (input.files && input.files[0]) {
@@ -736,7 +894,6 @@
       }
     }
 
-    // [Scroll reveal สำหรับการ์ดที่เพิ่มเข้ามาใหม่]
     const revealObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -754,50 +911,37 @@
       });
     }
 
-    // [ดึงข้อมูลจาก Supabase โดยกรองตาม Category]
     async function loadDataFromDB(category = 'presentation') {
       const isPresentation = category === 'presentation';
       const dataGrid = document.getElementById(isPresentation ? 'dataGrid' : 'moduleDataGrid');
       const itemCount = document.getElementById(isPresentation ? 'itemCount' : 'moduleItemCount');
 
-      dataGrid.innerHTML = `
-        <div class="shimmer loading-card"></div>
-        <div class="shimmer loading-card"></div>
-        <div class="shimmer loading-card"></div>
-      `;
-
-      let query = supabaseClient
-        .from('portfolios')
-        .select('*')
-        .order('id', { ascending: false });
-
-      if (category) {
-        query = query.or(`category.eq.${category},category.is.null`);
+      if (dataGrid) {
+        dataGrid.innerHTML = `
+          <div class="shimmer loading-card"></div>
+          <div class="shimmer loading-card"></div>
+          <div class="shimmer loading-card"></div>
+        `;
       }
+
+      let query = supabaseClient.from('portfolios').select('*').order('id', { ascending: false });
+      if (category) query = query.or(`category.eq.${category},category.is.null`);
 
       const { data, error } = await query;
 
       if (error) {
         console.error('Fetch Error:', error);
-        dataGrid.innerHTML = `
-          <div class="status-msg">
-            <i class="fa-solid fa-triangle-exclamation"></i>
-            <h3>เกิดข้อผิดพลาดในการโหลดข้อมูล</h3>
-            <p>โปรดตรวจสอบว่าได้ใส่ Supabase URL และ Key ถูกต้องแล้วหรือไม่</p>
-          </div>
-        `;
-        itemCount.innerText = '—';
+        if (dataGrid) dataGrid.innerHTML = `<div class="status-msg"><i class="fa-solid fa-triangle-exclamation"></i><h3>เกิดข้อผิดพลาดในการโหลดข้อมูล</h3></div>`;
         return;
       }
 
-      const filteredData = data.filter(item => {
-        if (category === 'presentation') {
-          return !item.category || item.category === 'presentation';
-        }
-        return item.category === category;
-      });
-
+      const filteredData = data.filter(item => (category === 'presentation') ? (!item.category || item.category === 'presentation') : item.category === category);
       loadedDataCache = filteredData;
+
+      if (category === 'events') renderCalendar(filteredData);
+      if (category === 'treasury') renderExcelTable(filteredData);
+
+      if (!dataGrid) return;
 
       if (filteredData.length === 0) {
         dataGrid.innerHTML = `
@@ -807,34 +951,31 @@
             <p>สลับไปหน้า "ใส่ข้อมูล" เพื่อเลือกหมวดหมู่นี้และสร้างข้อมูลชิ้นแรก!</p>
           </div>
         `;
-        itemCount.innerText = '0 ชิ้น';
+        if (itemCount) itemCount.innerText = '0 ชิ้น';
         return;
       }
 
-      itemCount.innerText = `${filteredData.length} ชิ้นในคอลเลกชัน`;
+      if (itemCount) itemCount.innerText = `${filteredData.length} ชิ้นในคอลเลกชัน`;
       dataGrid.innerHTML = '';
       filteredData.forEach((item, idx) => {
         const editionNo = String(item.id).padStart(3, '0');
         const displayImg = item.image_url || DEFAULT_IMAGE;
-        
+        const imgOnClickAction = (category === 'events') ? `openEventDetailModal(${item.id})` : `openImageModal('${displayImg}')`;
+
         dataGrid.innerHTML += `
           <div class="data-card">
             <div class="card-edition">No. ${editionNo}</div>
             ${idx === 0 ? '<div class="card-tag">New</div>' : ''}
-            <div class="data-card-img-wrapper" onclick="openImageModal('${displayImg}')">
+            <div class="data-card-img-wrapper" onclick="${imgOnClickAction}">
               <img src="${displayImg}" alt="${item.name}" loading="lazy">
             </div>
-            <div class="data-card-body">
+            <div class="data-card-body" ${category === 'events' ? `style="cursor:pointer;" onclick="openEventDetailModal(${item.id})"` : ''}>
               <h3>${item.name}</h3>
               <p>${item.bio}</p>
               <div class="card-rule"></div>
-              <div class="card-actions">
-                <button class="btn-card-action" onclick="openEditModal(${item.id})" title="แก้ไขข้อมูล">
-                  <i class="fa-solid fa-pen"></i>
-                </button>
-                <button class="btn-card-action delete" onclick="deleteDataItem(${item.id}, '${item.image_url || ''}')" title="ลบข้อมูล">
-                  <i class="fa-solid fa-trash-can"></i>
-                </button>
+              <div class="card-actions" onclick="event.stopPropagation()">
+                <button class="btn-card-action" onclick="openEditModal(${item.id})" title="แก้ไขข้อมูล"><i class="fa-solid fa-pen"></i></button>
+                <button class="btn-card-action delete" onclick="deleteDataItem(${item.id}, '${item.image_url || ''}')" title="ลบข้อมูล"><i class="fa-solid fa-trash-can"></i></button>
               </div>
             </div>
           </div>
@@ -844,29 +985,132 @@
       initCardReveal(isPresentation ? '#dataGrid' : '#moduleDataGrid');
     }
 
-    // [ฟังก์ชัน Pop-up พรีวิวรูปเต็มจอ]
-    function openImageModal(imgSrc) {
-      const modal = document.getElementById('imageModal');
-      document.getElementById('lightboxImg').src = imgSrc;
-      modal.classList.add('active');
+    // ================= [แสดงผลตารางการเงิน Excel] =================
+    function renderExcelTable(items) {
+      const tbody = document.getElementById('excelTableBody');
+      tbody.innerHTML = '';
+
+      let totalInc = 0;
+      let totalExp = 0;
+
+      if (items.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--muted); padding:30px;">ยังไม่มีรายการบัญชีการเงินในระบบ</td></tr>`;
+      } else {
+        items.forEach((item, index) => {
+          // ดึงค่าจำนวนเงินและประเภทธุรกรรมจากคำบรรยาย/ช่องพิเสษ
+          let isExpense = item.bio && item.bio.includes('[รายจ่าย]');
+          let amtMatch = item.bio ? item.bio.match(/[\d,.]+(?=\s*บาท)/) : null;
+          let amount = amtMatch ? parseFloat(amtMatch[0].replace(/,/g, '')) : 0;
+
+          if (isExpense) totalExp += amount; else totalInc += amount;
+
+          tbody.innerHTML += `
+            <tr>
+              <td style="text-align:center; color:var(--muted);">${index + 1}</td>
+              <td style="font-weight:500; color:var(--gold-bright);">${item.name}</td>
+              <td style="color:var(--ivory);">${item.bio.replace(/\[รายรับ\]|\[รายจ่าย\]/g, '')}</td>
+              <td><span class="type-badge ${isExpense ? 'exp' : 'inc'}">${isExpense ? 'รายจ่าย' : 'รายรับ'}</span></td>
+              <td style="text-align:right; font-weight:600; color:${isExpense ? 'var(--danger)' : 'var(--success)'};">
+                ${isExpense ? '-' : '+'}฿${amount.toLocaleString('th-TH', {minimumFractionDigits: 2})}
+              </td>
+              <td style="text-align:center;">
+                <button class="btn-card-action delete" style="display:inline-flex;" onclick="deleteDataItem(${item.id}, '${item.image_url || ''}')" title="ลบรายการ">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </td>
+            </tr>
+          `;
+        });
+      }
+
+      document.getElementById('totalIncVal').innerText = `฿${totalInc.toLocaleString('th-TH', {minimumFractionDigits: 2})}`;
+      document.getElementById('totalExpVal').innerText = `฿${totalExp.toLocaleString('th-TH', {minimumFractionDigits: 2})}`;
+      const net = totalInc - totalExp;
+      const netEl = document.getElementById('netBalanceVal');
+      netEl.innerText = `฿${net.toLocaleString('th-TH', {minimumFractionDigits: 2})}`;
+      netEl.style.color = net >= 0 ? 'var(--gold-bright)' : 'var(--danger)';
     }
 
-    function closeImageModal(e) {
+    // ================= [ระบบสร้างตารางปฏิทิน Calendar] =================
+    function renderCalendar(eventsList = []) {
+      const calGrid = document.getElementById('calendarGrid');
+      const calTitle = document.getElementById('calendarMonthTitle');
+      const year = calDate.getFullYear();
+      const month = calDate.getMonth();
+      const monthNames = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+      
+      calTitle.innerText = `${monthNames[month]} ${year + 543}`;
+      calGrid.innerHTML = `
+        <div class="cal-day-head">อา</div><div class="cal-day-head">จ</div><div class="cal-day-head">อ</div>
+        <div class="cal-day-head">พ</div><div class="cal-day-head">พฤ</div><div class="cal-day-head">ศ</div><div class="cal-day-head">ส</div>
+      `;
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      for (let i = 0; i < firstDay; i++) calGrid.innerHTML += `<div class="cal-day-cell empty"></div>`;
+
+      const today = new Date();
+      for (let day = 1; day <= daysInMonth; day++) {
+        const isToday = (today.getDate() === day && today.getMonth() === month && today.getFullYear() === year);
+        let dayEventsHtml = '';
+        eventsList.forEach((ev) => {
+          const matchedDay = ev.name.match(/\d+/) || ev.bio.match(/\d+/);
+          const evDayNum = matchedDay ? parseInt(matchedDay[0]) : null;
+          if (evDayNum === day || (!evDayNum && (ev.id % daysInMonth) + 1 === day)) {
+            dayEventsHtml += `
+              <div class="event-mark-badge" onclick="openEventDetailModal(${ev.id})" title="${ev.name}">
+                <i class="fa-solid fa-circle"></i><span>${ev.name}</span>
+              </div>
+            `;
+          }
+        });
+
+        calGrid.innerHTML += `
+          <div class="cal-day-cell ${isToday ? 'today' : ''}">
+            <div class="cal-num">${day}</div>
+            ${dayEventsHtml}
+          </div>
+        `;
+      }
+    }
+
+    function changeMonth(diff) {
+      calDate.setMonth(calDate.getMonth() + diff);
+      renderCalendar(loadedDataCache);
+    }
+
+    function openImageModal(imgSrc) {
+      document.getElementById('lightboxImg').src = imgSrc;
+      document.getElementById('imageModal').classList.add('active');
+    }
+
+    function closeImageModal() {
       document.getElementById('imageModal').classList.remove('active');
     }
 
-    // [ฟังก์ชัน Pop-up แก้ไขข้อมูล]
+    function openEventDetailModal(id) {
+      const item = loadedDataCache.find(d => d.id === id);
+      if (!item) return;
+      document.getElementById('eventModalImg').src = item.image_url || DEFAULT_IMAGE;
+      document.getElementById('eventModalTitle').innerText = item.name || 'ไม่มีชื่อกิจกรรม';
+      document.getElementById('eventModalBio').innerText = item.bio || 'ไม่มีรายละเอียด';
+      document.getElementById('eventDetailModal').classList.add('active');
+    }
+
+    function closeEventDetailModal() {
+      document.getElementById('eventDetailModal').classList.remove('active');
+    }
+
     function openEditModal(id) {
       const item = loadedDataCache.find(d => d.id === id);
       if (!item) return;
-
       document.getElementById('editId').value = item.id;
       document.getElementById('editName').value = item.name || '';
       document.getElementById('editBio').value = item.bio || '';
       document.getElementById('editOldImageUrl').value = item.image_url || '';
       document.getElementById('editFile').value = '';
       document.getElementById('editFileNameDisplay').innerText = 'อัปโหลดเปลี่ยนรูปภาพใหม่ (ถ้าต้องการ)';
-
       document.getElementById('editModal').classList.add('active');
     }
 
@@ -874,7 +1118,6 @@
       document.getElementById('editModal').classList.remove('active');
     }
 
-    // [ส่งข้อมูลที่แก้ไขเข้า Supabase]
     async function submitEditData(evt) {
       const btnUpdate = document.getElementById('btnUpdate');
       if (evt) spawnRipple(evt, btnUpdate);
@@ -883,100 +1126,53 @@
       const name = document.getElementById('editName').value.trim();
       const bio = document.getElementById('editBio').value.trim();
       const oldImageUrl = document.getElementById('editOldImageUrl').value;
-      const fileInput = document.getElementById('editFile');
-      const file = fileInput.files[0];
+      const file = document.getElementById('editFile').files[0];
 
       if (!name || !bio) {
-        alert('กรุณากรอกชื่อและคำบรรยายให้ครบถ้วนก่อนอัปเดตครับ');
+        alert('กรุณากรอกข้อมูลให้ครบถ้วนก่อนอัปเดตครับ');
         return;
       }
 
-      btnUpdate.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>กำลังบันทึก...</span>`;
       btnUpdate.disabled = true;
-
       try {
         let finalImageUrl = oldImageUrl;
-
-        // ถ้ามีการอัปโหลดรูปภาพใหม่
         if (file) {
           const fileName = `${Date.now()}_${file.name}`;
-          const { error: uploadError } = await supabaseClient
-            .storage
-            .from('portfolio_images')
-            .upload(fileName, file);
-
+          const { error: uploadError } = await supabaseClient.storage.from('portfolio_images').upload(fileName, file);
           if (uploadError) throw uploadError;
-
-          const { data: urlData } = supabaseClient
-            .storage
-            .from('portfolio_images')
-            .getPublicUrl(fileName);
-
+          const { data: urlData } = supabaseClient.storage.from('portfolio_images').getPublicUrl(fileName);
           finalImageUrl = urlData.publicUrl;
-
-          // ลบรูปเก่าออกเพื่อไม่ให้เปลืองพื้นที่
-          if (oldImageUrl && oldImageUrl !== DEFAULT_IMAGE) {
-            const parts = oldImageUrl.split('/portfolio_images/');
-            if (parts.length > 1) {
-              await supabaseClient.storage.from('portfolio_images').remove([parts[1]]);
-            }
-          }
         }
 
-        const { error: updateError } = await supabaseClient
-          .from('portfolios')
-          .update({
-            name: name,
-            bio: bio,
-            image_url: finalImageUrl
-          })
-          .eq('id', id);
-
-        if (updateError) throw updateError;
+        const { error } = await supabaseClient.from('portfolios').update({ name, bio, image_url: finalImageUrl }).eq('id', id);
+        if (error) throw error;
 
         alert('อัปเดตข้อมูลสำเร็จ!');
         closeEditModal();
         loadDataFromDB(currentCategory);
-
       } catch (err) {
-        alert('เกิดข้อผิดพลาดในการอัปเดต: ' + err.message);
+        alert('เกิดข้อผิดพลาด: ' + err.message);
       } finally {
-        btnUpdate.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> <span>อัปเดตข้อมูล</span>`;
         btnUpdate.disabled = false;
       }
     }
 
-    // [ฟังก์ชันสำหรับลบข้อมูลตาม ID และลบรูปภาพใน Storage]
     async function deleteDataItem(id, imageUrl) {
-      if (!confirm('คุณแน่ใจหรือว่าต้องการลบรายการนี้ออกจากระบบ?')) {
-        return;
-      }
-
+      if (!confirm('คุณแน่ใจหรือว่าต้องการลบรายการนี้ออกจากระบบ?')) return;
       try {
         if (imageUrl && imageUrl !== DEFAULT_IMAGE) {
           const parts = imageUrl.split('/portfolio_images/');
-          if (parts.length > 1) {
-            const fileName = parts[1];
-            await supabaseClient.storage.from('portfolio_images').remove([fileName]);
-          }
+          if (parts.length > 1) await supabaseClient.storage.from('portfolio_images').remove([parts[1]]);
         }
-
-        const { error } = await supabaseClient
-          .from('portfolios')
-          .delete()
-          .eq('id', id);
-
+        const { error } = await supabaseClient.from('portfolios').delete().eq('id', id);
         if (error) throw error;
-
         alert('ลบข้อมูลเรียบร้อยแล้ว!');
         loadDataFromDB(currentCategory);
-
       } catch (err) {
-        alert('เกิดข้อผิดพลาดในการลบข้อมูล: ' + err.message);
+        alert('เกิดข้อผิดพลาด: ' + err.message);
       }
     }
 
-    // [Ripple effect บนปุ่ม]
     function spawnRipple(e, btn) {
       const rect = btn.getBoundingClientRect();
       const ripple = document.createElement('span');
@@ -988,82 +1184,66 @@
       setTimeout(() => ripple.remove(), 650);
     }
 
-    // [อัปโหลดรูปภาพและเซฟข้อมูลพร้อมระบุหมวดหมู่ลง Supabase]
     async function uploadAndSaveData(evt) {
       const btnSave = document.getElementById('btnSave');
       if (evt) spawnRipple(evt, btnSave);
 
       const category = document.getElementById('inputCategory').value;
-      const name = document.getElementById('inputName').value.trim();
-      const bio = document.getElementById('inputBio').value.trim();
-      const fileInput = document.getElementById('inputFile');
-      const file = fileInput.files[0];
+      let name = document.getElementById('inputName').value.trim();
+      let bio = document.getElementById('inputBio').value.trim();
+      const file = document.getElementById('inputFile').files[0];
+
+      if (category === 'treasury') {
+        const finType = document.getElementById('inputFinanceType').value;
+        const amount = document.getElementById('inputAmount').value;
+        if (!amount) {
+          alert('กรุณากรอกจำนวนเงินให้ถูกต้องครับ');
+          return;
+        }
+        const tag = finType === 'expense' ? '[รายจ่าย]' : '[รายรับ]';
+        bio = `${tag} ${bio} (${parseFloat(amount).toLocaleString('th-TH', {minimumFractionDigits:2})} บาท)`;
+      }
 
       if (!name || !bio) {
-        alert('กรุณากรอกชื่อโปรเจกต์และคำบรรยายให้ครบถ้วนก่อนบันทึกครับ');
+        alert('กรุณากรอกข้อมูลให้ครบถ้วนก่อนบันทึกครับ');
         return;
       }
 
-      btnSave.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>กำลังอัปโหลดข้อมูล...</span>`;
       btnSave.disabled = true;
-
       try {
         let publicUrl = null;
-
-        // ถ้ามีการเลือกไฟล์ ให้ทำการอัปโหลดรูป
         if (file) {
           const fileName = `${Date.now()}_${file.name}`;
-          const { error: uploadError } = await supabaseClient
-            .storage
-            .from('portfolio_images')
-            .upload(fileName, file);
-
+          const { error: uploadError } = await supabaseClient.storage.from('portfolio_images').upload(fileName, file);
           if (uploadError) throw uploadError;
-
-          const { data: urlData } = supabaseClient
-            .storage
-            .from('portfolio_images')
-            .getPublicUrl(fileName);
-
+          const { data: urlData } = supabaseClient.storage.from('portfolio_images').getPublicUrl(fileName);
           publicUrl = urlData.publicUrl;
         }
 
-        const { error: insertError } = await supabaseClient
-          .from('portfolios')
-          .insert([{ 
-            name: name, 
-            bio: bio, 
-            image_url: publicUrl,
-            category: category 
-          }]);
-
-        if (insertError) throw insertError;
+        const { error } = await supabaseClient.from('portfolios').insert([{ name, bio, image_url: publicUrl, category }]);
+        if (error) throw error;
 
         alert('บันทึกข้อมูลเข้าหมวดหมู่เรียบร้อยแล้ว!');
-
         document.getElementById('inputName').value = '';
         document.getElementById('inputBio').value = '';
-        fileInput.value = '';
+        document.getElementById('inputAmount').value = '';
+        document.getElementById('inputFile').value = '';
         document.getElementById('fileNameDisplay').innerText = 'คลิกเพื่อเลือกไฟล์รูปภาพ (ไม่บังคับ - PNG, JPG, WEBP)';
 
         switchTab(category);
-
       } catch (err) {
         alert('เกิดข้อผิดพลาด: ' + err.message);
       } finally {
-        btnSave.innerHTML = `<i class="fa-solid fa-paper-plane"></i> <span>บันทึกและส่งข้อมูลเข้า Database</span>`;
         btnSave.disabled = false;
       }
     }
 
-    // [Cursor spotlight ambient glow]
     const spotlightEl = document.getElementById('spotlight');
     document.addEventListener('mousemove', (e) => {
       spotlightEl.style.setProperty('--mx', e.clientX + 'px');
       spotlightEl.style.setProperty('--my', e.clientY + 'px');
     });
 
-    // เรียกโหลดข้อมูลตั้งแต่วินาทีแรกที่เปิดเว็บ
     loadDataFromDB('presentation');
   </script>
 </body>
