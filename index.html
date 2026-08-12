@@ -375,17 +375,25 @@
     position:absolute; left:18px; top:16px; color:var(--muted); font-size:14.5px;
     transition:all .25s cubic-bezier(.2,.8,.2,1); pointer-events:none; background:var(--panel-solid); padding:0 6px;
   }
-  .form-group.select-group label{ top:-9px; left:14px; font-size:11.5px; color:var(--gold); letter-spacing:1px; }
+  .form-group.select-group label,
+  .form-group.date-group label{ top:-9px; left:14px; font-size:11.5px; color:var(--gold); letter-spacing:1px; }
   .form-control{
     width:100%; padding:16px 18px; background:rgba(255,255,255,0.02);
     border:1px solid var(--hairline-strong); color:var(--ivory); font-size:15px;
     outline:none; transition:all .35s; font-family:inherit;
   }
   select.form-control option{ background:#0d0d13; color:var(--ivory); padding:10px; }
+  input[type="date"].form-control::-webkit-calendar-picker-indicator,
+  input[type="time"].form-control::-webkit-calendar-picker-indicator {
+    filter: invert(0.8) sepia(1) saturate(5) hue-rotate(5deg);
+    cursor: pointer;
+  }
   .form-control:focus{ border-color:var(--gold); box-shadow:0 0 0 3px rgba(212,175,122,0.14); background:rgba(212,175,122,0.03); }
   .form-control:focus + label,
   .form-control:not(:placeholder-shown) + label{ top:-9px; left:14px; font-size:11.5px; color:var(--gold); letter-spacing:1px; }
   textarea.form-control{ height:120px; resize:vertical; }
+
+  .form-row{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
 
   .file-drop-zone{
     border:1px dashed var(--hairline-strong); padding:34px; text-align:center;
@@ -440,7 +448,8 @@
   .event-modal-img{ width:100%; height:320px; object-fit:cover; border-bottom:1px solid var(--hairline-strong); display:block; }
   .event-modal-body{ padding:30px 32px 36px; }
   .event-modal-body .eyebrow{ opacity:1; margin-bottom:12px; }
-  .event-modal-body h2{ font-size:1.8rem; color:var(--gold-bright); margin-bottom:16px; font-weight:500; }
+  .event-modal-body h2{ font-size:1.8rem; color:var(--gold-bright); margin-bottom:10px; font-weight:500; }
+  .event-modal-time{ color:var(--gold); font-size:0.9rem; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
   .event-modal-body p{ color:var(--ivory); font-size:1rem; line-height:1.8; opacity:0.9; white-space:pre-line; }
 
   .shimmer{ background:linear-gradient(100deg, rgba(255,255,255,0.02) 0%, rgba(212,175,122,0.12) 50%, rgba(255,255,255,0.02) 100%); background-size:200% 100%; animation:shimmerMove 1.6s infinite; }
@@ -462,6 +471,7 @@
     .event-modal-body{ padding:20px; }
     .cal-day-cell{ min-height:65px; padding:4px; }
     .event-mark-badge{ font-size:0.65rem; padding:2px 4px; }
+    .form-row{ grid-template-columns:1fr; }
   }
 
   @media (prefers-reduced-motion: reduce){
@@ -482,9 +492,6 @@
   <div class="dust" style="--x:68%; --delay:2s; --dur:17s;"></div>
   <div class="dust" style="--x:79%; --delay:6s; --dur:19s;"></div>
   <div class="dust" style="--x:90%; --delay:4s; --dur:15s;"></div>
-  <div class="dust" style="--x:14%; --delay:8s; --dur:21s;"></div>
-  <div class="dust" style="--x:47%; --delay:10s; --dur:18s;"></div>
-  <div class="dust" style="--x:95%; --delay:7s; --dur:16s;"></div>
 
   <nav class="navbar">
     <div class="brandmark">
@@ -614,7 +621,7 @@
           <h2 class="serif">เพิ่มข้อมูลใหม่เข้าระบบ</h2>
 
           <div class="form-group select-group">
-            <select id="inputCategory" class="form-control" onchange="toggleFinanceFormFields(this.value)">
+            <select id="inputCategory" class="form-control" onchange="toggleFormFieldsByCategory(this.value)">
               <option value="presentation">หน้าหลัก (Presentation)</option>
               <option value="dashboard">DASHBOARD — เข้าสู่บ้าน</option>
               <option value="members">สมาชิก — CHARACTER DATABASE</option>
@@ -646,6 +653,20 @@
             <div class="form-group">
               <input type="number" id="inputAmount" class="form-control" placeholder=" " step="any">
               <label>จำนวนเงิน (บาท)</label>
+            </div>
+          </div>
+
+          <!-- ตัวเลือกเพิ่มเติมเฉพาะเมื่อเลือกหมวดกิจกรรม (EVENTS) -->
+          <div id="eventOptions" style="display:none;">
+            <div class="form-row">
+              <div class="form-group date-group">
+                <input type="date" id="inputEventDate" class="form-control">
+                <label>วันที่จัดกิจกรรม</label>
+              </div>
+              <div class="form-group date-group">
+                <input type="time" id="inputEventTime" class="form-control">
+                <label>เวลาจัดกิจกรรม</label>
+              </div>
             </div>
           </div>
 
@@ -730,7 +751,7 @@
         </div>
       </div>
 
-      <!-- ส่วน Grid การ์ดทั่วไป (สำหรับหมวดอื่นๆ) -->
+      <!-- ส่วน Grid การ์ดทั่วไป -->
       <div id="cardSection">
         <div class="grid-header">
           <h2 class="serif">รายการข้อมูลในระบบ</h2>
@@ -763,6 +784,7 @@
       <div class="event-modal-body">
         <div class="eyebrow"><i class="fa-solid fa-calendar-star" style="margin-right:6px;"></i> EVENT DETAILS</div>
         <h2 id="eventModalTitle" class="serif">ชื่อกิจกรรม</h2>
+        <div id="eventModalTime" class="event-modal-time"><i class="fa-regular fa-clock"></i> <span>-</span></div>
         <p id="eventModalBio">รายละเอียดกิจกรรม...</p>
       </div>
     </div>
@@ -814,18 +836,30 @@
     let loadedDataCache = [];
     let calDate = new Date();
 
-    function toggleFinanceFormFields(category) {
+    function toggleFormFieldsByCategory(category) {
       const finOpt = document.getElementById('financeOptions');
+      const evOpt = document.getElementById('eventOptions');
       const lblName = document.getElementById('lblName');
       const lblBio = document.getElementById('lblBio');
+
+      finOpt.style.display = 'none';
+      evOpt.style.display = 'none';
+      lblName.innerText = 'ชื่อโปรเจกต์ / หัวข้อเรื่อง';
+      lblBio.innerText = 'คำบรรยาย / รายละเอียด';
+
       if (category === 'treasury') {
         finOpt.style.display = 'block';
         lblName.innerText = 'รายการ / หัวข้อการเงิน';
         lblBio.innerText = 'รายละเอียดการรับ-จ่าย';
-      } else {
-        finOpt.style.display = 'none';
-        lblName.innerText = 'ชื่อโปรเจกต์ / หัวข้อเรื่อง';
-        lblBio.innerText = 'คำบรรยาย / รายละเอียด';
+      } else if (category === 'events') {
+        evOpt.style.display = 'block';
+        lblName.innerText = 'ชื่อกิจกรรม';
+        lblBio.innerText = 'รายละเอียดกิจกรรม';
+        
+        // กำหนดค่าเริ่มต้นของวันและเวลาให้เป็นปัจจุบัน
+        const now = new Date();
+        document.getElementById('inputEventDate').value = now.toISOString().split('T')[0];
+        document.getElementById('inputEventTime').value = now.toTimeString().slice(0, 5);
       }
     }
 
@@ -997,7 +1031,6 @@
         tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--muted); padding:30px;">ยังไม่มีรายการบัญชีการเงินในระบบ</td></tr>`;
       } else {
         items.forEach((item, index) => {
-          // ดึงค่าจำนวนเงินและประเภทธุรกรรมจากคำบรรยาย/ช่องพิเสษ
           let isExpense = item.bio && item.bio.includes('[รายจ่าย]');
           let amtMatch = item.bio ? item.bio.match(/[\d,.]+(?=\s*บาท)/) : null;
           let amount = amtMatch ? parseFloat(amtMatch[0].replace(/,/g, '')) : 0;
@@ -1031,7 +1064,7 @@
       netEl.style.color = net >= 0 ? 'var(--gold-bright)' : 'var(--danger)';
     }
 
-    // ================= [ระบบสร้างตารางปฏิทิน Calendar] =================
+    // ================= [ระบบปฏิทิน Calendar พร้อมวันที่/เวลา] =================
     function renderCalendar(eventsList = []) {
       const calGrid = document.getElementById('calendarGrid');
       const calTitle = document.getElementById('calendarMonthTitle');
@@ -1054,10 +1087,27 @@
       for (let day = 1; day <= daysInMonth; day++) {
         const isToday = (today.getDate() === day && today.getMonth() === month && today.getFullYear() === year);
         let dayEventsHtml = '';
+
         eventsList.forEach((ev) => {
-          const matchedDay = ev.name.match(/\d+/) || ev.bio.match(/\d+/);
-          const evDayNum = matchedDay ? parseInt(matchedDay[0]) : null;
-          if (evDayNum === day || (!evDayNum && (ev.id % daysInMonth) + 1 === day)) {
+          // สกัดหาแพทเทิร์น วันที่ YYYY-MM-DD
+          const dateMatch = ev.bio ? ev.bio.match(/📅\s*วันที่:\s*(\d{4}-\d{2}-\d{2})/) : null;
+          let isMatchDay = false;
+
+          if (dateMatch) {
+            const evDate = new Date(dateMatch[1]);
+            if (evDate.getDate() === day && evDate.getMonth() === month && evDate.getFullYear() === year) {
+              isMatchDay = true;
+            }
+          } else {
+            // fallback ถ้ารายการเก่าไม่มีรูปแบบ YYYY-MM-DD
+            const fallbackDay = ev.name.match(/\d+/) || ev.bio.match(/\d+/);
+            const evDayNum = fallbackDay ? parseInt(fallbackDay[0]) : null;
+            if (evDayNum === day || (!evDayNum && (ev.id % daysInMonth) + 1 === day)) {
+              isMatchDay = true;
+            }
+          }
+
+          if (isMatchDay) {
             dayEventsHtml += `
               <div class="event-mark-badge" onclick="openEventDetailModal(${ev.id})" title="${ev.name}">
                 <i class="fa-solid fa-circle"></i><span>${ev.name}</span>
@@ -1092,8 +1142,22 @@
     function openEventDetailModal(id) {
       const item = loadedDataCache.find(d => d.id === id);
       if (!item) return;
+
       document.getElementById('eventModalImg').src = item.image_url || DEFAULT_IMAGE;
       document.getElementById('eventModalTitle').innerText = item.name || 'ไม่มีชื่อกิจกรรม';
+
+      // สกัดหาเวลาและวันที่
+      const timeMatch = item.bio ? item.bio.match(/⏰\s*เวลา:\s*([^\n]+)/) : null;
+      const dateMatch = item.bio ? item.bio.match(/📅\s*วันที่:\s*([^\n]+)/) : null;
+
+      let timeText = '-';
+      if (dateMatch && timeMatch) {
+        timeText = `${dateMatch[1]} เวลา ${timeMatch[1]} น.`;
+      } else if (timeMatch) {
+        timeText = `เวลา ${timeMatch[1]} น.`;
+      }
+
+      document.getElementById('eventModalTime').innerHTML = `<i class="fa-regular fa-clock"></i> <span>${timeText}</span>`;
       document.getElementById('eventModalBio').innerText = item.bio || 'ไม่มีรายละเอียด';
       document.getElementById('eventDetailModal').classList.add('active');
     }
@@ -1149,7 +1213,7 @@
 
         alert('อัปเดตข้อมูลสำเร็จ!');
         closeEditModal();
-        loadDataFromDB(currentCategory);
+ loadDataFromDB(currentCategory);
       } catch (err) {
         alert('เกิดข้อผิดพลาด: ' + err.message);
       } finally {
@@ -1202,6 +1266,14 @@
         }
         const tag = finType === 'expense' ? '[รายจ่าย]' : '[รายรับ]';
         bio = `${tag} ${bio} (${parseFloat(amount).toLocaleString('th-TH', {minimumFractionDigits:2})} บาท)`;
+      } else if (category === 'events') {
+        const evDate = document.getElementById('inputEventDate').value;
+        const evTime = document.getElementById('inputEventTime').value;
+        if (!evDate) {
+          alert('กรุณาเลือกวันที่จัดกิจกรรมด้วยครับ');
+          return;
+        }
+        bio = `📅 วันที่: ${evDate}\n⏰ เวลา: ${evTime || 'ไม่ระบุ'}\n\n${bio}`;
       }
 
       if (!name || !bio) {
@@ -1223,7 +1295,7 @@
         const { error } = await supabaseClient.from('portfolios').insert([{ name, bio, image_url: publicUrl, category }]);
         if (error) throw error;
 
-        alert('บันทึกข้อมูลเข้าหมวดหมู่เรียบร้อยแล้ว!');
+        alert('บันทึกกิจกรรมเรียบร้อยแล้ว!');
         document.getElementById('inputName').value = '';
         document.getElementById('inputBio').value = '';
         document.getElementById('inputAmount').value = '';
