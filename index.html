@@ -94,11 +94,11 @@
 
   /* ================= NAVBAR ================= */
   .navbar{
-    background:rgba(7,7,10,0.7);
+    background:rgba(7,7,10,0.85);
     backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
     border-bottom:1px solid var(--hairline);
     height:76px; display:flex; align-items:center; justify-content:space-between;
-    padding:0 40px; position:sticky; top:0; z-index:1000;
+    padding:0 40px; position:fixed; top:0; left:0; right:0; z-index:1000;
     animation:dropIn .7s cubic-bezier(.2,.8,.2,1) both;
   }
   @keyframes dropIn{ from{ transform:translateY(-100%); opacity:0; } to{ transform:translateY(0); opacity:1; } }
@@ -171,7 +171,7 @@
   .ticker{
     border-bottom:1px solid var(--hairline); overflow:hidden; white-space:nowrap;
     background:#0b0b10;
-    position:relative; z-index:10;
+    position:relative; z-index:10; margin-top:76px;
   }
   .ticker-track{ display:inline-flex; animation:tickerMove 26s linear infinite; padding:9px 0; }
   .ticker-track span{ padding:0 32px; font-size:0.72rem; letter-spacing:2.5px; color:var(--gold); text-transform:uppercase; display:flex; align-items:center; gap:10px; }
@@ -179,36 +179,47 @@
   @keyframes tickerMove{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
 
   /* ================= LAYOUT ================= */
-  .container{ max-width:1140px; margin:0 auto; padding:0 24px 100px; position:relative; z-index:1; }
+  .container{ max-width:1300px; margin:0 auto; padding:0 24px 100px; position:relative; z-index:1; }
 
   .tab-page{ display:none; }
   .tab-page.active{ display:block; animation:pageIn .6s cubic-bezier(.2,.8,.2,1) both; }
   @keyframes pageIn{ from{ opacity:0; transform:translateY(24px); } to{ opacity:1; transform:translateY(0); } }
 
-  /* ================= HERO ================= */
+  /* ================= HERO & HERO SLIDER (EXPANDED / FULLSCREEN) ================= */
+  .hero-banner-fullscreen{
+    min-height: calc(100vh - 110px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 40px 20px;
+    position: relative;
+  }
+
   .hero-banner{
-    text-align:center; padding:100px 20px 70px; position:relative; overflow:hidden;
+    text-align:center; padding:40px 20px 20px; position:relative; overflow:hidden; width:100%;
   }
   .eyebrow{
-    display:inline-flex; align-items:center; gap:12px; font-size:0.72rem; letter-spacing:4px;
+    display:inline-flex; align-items:center; gap:12px; font-size:0.85rem; letter-spacing:5px;
     color:var(--gold); text-transform:uppercase; margin-bottom:26px;
     opacity:0; animation:riseIn .8s cubic-bezier(.2,.8,.2,1) .1s forwards;
   }
-  .eyebrow::before,.eyebrow::after{ content:''; width:34px; height:1px; background:linear-gradient(90deg, transparent, var(--gold)); }
+  .eyebrow::before,.eyebrow::after{ content:''; width:45px; height:1px; background:linear-gradient(90deg, transparent, var(--gold)); }
   .eyebrow::after{ background:linear-gradient(90deg, var(--gold), transparent); }
 
   .hero-banner h1{
-    font-size:clamp(2.4rem, 5vw, 4.2rem); font-weight:600; line-height:1.15; margin-bottom:22px;
+    font-size:clamp(3rem, 7vw, 5.5rem); font-weight:700; line-height:1.1; margin-bottom:26px;
     background:linear-gradient(100deg, var(--ivory) 30%, var(--gold-bright) 50%, var(--ivory) 70%);
     background-size:200% auto;
     -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
-    animation:riseIn .9s cubic-bezier(.2,.8,.2,1) .25s forwards, shine 6s linear 1.2s infinite; opacity:0;
+    animation:shine 6s linear 1.2s infinite, riseIn .9s cubic-bezier(.2,.8,.2,1) .25s forwards; opacity:0;
   }
   @keyframes shine{ to{ background-position:-200% center; } }
   @keyframes riseIn{ from{ opacity:0; transform:translateY(28px); } to{ opacity:1; transform:translateY(0); } }
 
   .hero-banner p{
-    color:var(--muted); font-size:1.08rem; max-width:560px; margin:0 auto;
+    color:var(--muted); font-size:1.25rem; max-width:720px; margin:0 auto;
     opacity:0; animation:riseIn .9s cubic-bezier(.2,.8,.2,1) .4s forwards;
   }
   .hero-divider{
@@ -216,12 +227,56 @@
     opacity:0; animation:riseIn .9s cubic-bezier(.2,.8,.2,1) .55s forwards;
   }
 
-  /* ================= GRID / PRODUCT CARDS ================= */
-  .grid-header{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:36px; flex-wrap:wrap; gap:10px; }
-  .grid-header h2{ font-size:1.5rem; font-weight:500; color:var(--ivory); }
-  .grid-header span{ font-size:0.78rem; letter-spacing:2px; color:var(--muted); text-transform:uppercase; }
+  /* NEW FULLSCREEN SLIDER DESIGN */
+  .hero-slider-wrapper{
+    position:relative; width:100%; height:75vh; min-height:550px; margin:40px 0 80px;
+    border:1px solid var(--hairline-strong); border-radius:6px; overflow:hidden;
+    box-shadow:var(--shadow-deep); background:var(--panel-solid);
+  }
+  .hero-slider-container{ display:flex; width:100%; height:100%; transition:transform 0.6s cubic-bezier(0.25, 1, 0.5, 1); }
+  .hero-slide{ min-width:100%; height:100%; position:relative; overflow:hidden; }
+  .hero-slide img{ width:100%; height:100%; object-fit:cover; filter:brightness(0.75) saturate(1.05); transition:transform 6s ease; }
+  .hero-slide.active img{ transform:scale(1.08); }
+  .hero-slide-overlay{
+    position:absolute; inset:0;
+    background:linear-gradient(to top, rgba(7,7,10,0.95) 0%, rgba(7,7,10,0.4) 50%, transparent 100%);
+    display:flex; flex-direction:column; justify-content:flex-end; padding:60px 60px; text-align:left;
+  }
+  .hero-slide-tag{
+    display:inline-block; background:rgba(212,175,122,0.15); border:1px solid var(--gold);
+    color:var(--gold-bright); font-size:0.78rem; letter-spacing:2px; padding:6px 16px;
+    text-transform:uppercase; margin-bottom:16px; width:max-content;
+  }
+  .hero-slide-title{ font-size:2.8rem; color:var(--ivory); font-weight:500; margin-bottom:12px; line-height:1.2; }
+  .hero-slide-desc{ color:var(--muted); font-size:1.1rem; max-width:800px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  
+  .slider-btn{
+    position:absolute; top:50%; transform:translateY(-50%); z-index:10;
+    background:rgba(13,13,19,0.7); border:1px solid var(--hairline-strong); color:var(--gold-bright);
+    width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; backdrop-filter:blur(8px); transition:all 0.3s; font-size:16px;
+  }
+  .slider-btn:hover{ background:var(--gold); color:var(--black); box-shadow:0 0 20px rgba(212,175,122,0.6); }
+  .slider-btn.prev{ left:30px; }
+  .slider-btn.next{ right:30px; }
+  
+  .slider-dots{
+    position:absolute; bottom:30px; right:40px; z-index:10; display:flex; gap:10px;
+  }
+  .dot{
+    width:12px; height:12px; border-radius:50%; border:1px solid var(--gold);
+    background:transparent; cursor:pointer; transition:all 0.3s;
+  }
+  .dot.active{ background:var(--gold-bright); width:36px; border-radius:10px; }
 
-  .grid-container{ display:grid; grid-template-columns:repeat(auto-fill, minmax(290px, 1fr)); gap:34px; }
+  /* ================= GRID / PRODUCT CARDS (ขยายรูปภาพให้ใหญ่ขึ้นแบบเต็มตา ตัวอักษรคงเดิม) ================= */
+  .grid-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:36px; flex-wrap:wrap; gap:10px; }
+  .grid-header h2{ font-size:1.8rem; font-weight:500; color:var(--ivory); }
+  .grid-header .right-tools{ display:flex; align-items:center; gap:16px; }
+  .grid-header span{ font-size:0.85rem; letter-spacing:2px; color:var(--muted); text-transform:uppercase; }
+
+  /* ปรับการจัดวาง Column ให้กว้างเต็มพื้นที่ขึ้น */
+  .grid-container{ display:grid; grid-template-columns:repeat(auto-fill, minmax(420px, 1fr)); gap:40px; }
 
   .data-card{
     background:var(--panel-solid);
@@ -265,9 +320,10 @@
   .btn-card-action.delete{ color:var(--danger); border-color:rgba(231,76,60,0.4); }
   .btn-card-action.delete:hover{ background:var(--danger); color:#fff; box-shadow:0 0 12px rgba(231,76,60,0.6); }
 
-  .data-card-img-wrapper{ width:100%; height:230px; overflow:hidden; position:relative; background:#000; cursor:pointer; }
+  /* เพิ่มความสูงของรูปภาพให้ใหญ่และเด่นชัด */
+  .data-card-img-wrapper{ width:100%; height:480px; overflow:hidden; position:relative; background:#000; cursor:pointer; }
   .data-card img{ width:100%; height:100%; object-fit:cover; transition:transform 1s cubic-bezier(.2,.8,.2,1), filter .6s; filter:saturate(0.92) brightness(0.94); }
-  .data-card:hover img{ transform:scale(1.12); filter:saturate(1.05) brightness(1); }
+  .data-card:hover img{ transform:scale(1.08); filter:saturate(1.05) brightness(1); }
 
   .data-card-img-wrapper::before{
     content:''; position:absolute; inset:0; z-index:2;
@@ -281,8 +337,8 @@
   .data-card:hover .data-card-img-wrapper::after{ left:125%; }
 
   .data-card-body{ padding:26px 24px 28px; position:relative; }
-  .data-card-body h3{ font-size:1.2rem; margin-bottom:10px; color:var(--gold-bright); font-weight:500; padding-right:50px; }
-  .data-card-body p{ color:var(--muted); font-size:0.92rem; line-height:1.7; }
+  .data-card-body h3{ font-size:1.25rem; margin-bottom:10px; color:var(--gold-bright); font-weight:500; padding-right:50px; }
+  .data-card-body p{ color:var(--muted); font-size:0.95rem; line-height:1.7; }
   .card-rule{ width:30px; height:1px; background:var(--gold); margin:14px 0 0; transition:width .5s cubic-bezier(.2,.8,.2,1); }
   .data-card:hover .card-rule{ width:60px; }
 
@@ -466,12 +522,21 @@
     .navbar{ padding:0 18px; }
     .brandmark .tag{ display:none; }
     .form-card{ padding:38px 24px; }
-    .hero-banner{ padding:70px 16px 50px; }
+    .hero-banner-fullscreen{ min-height:auto; padding:30px 10px; }
+    .hero-banner{ padding:30px 16px 20px; }
+    .hero-slider-wrapper{ height:380px; min-height:380px; margin:20px 0 40px; }
+    .hero-slide-overlay{ padding:24px; }
+    .hero-slide-title{ font-size:1.6rem; }
+    .slider-btn{ width:40px; height:40px; font-size:12px; }
+    .slider-btn.prev{ left:10px; }
+    .slider-btn.next{ right:10px; }
     .event-modal-img{ height:220px; }
     .event-modal-body{ padding:20px; }
     .cal-day-cell{ min-height:65px; padding:4px; }
     .event-mark-badge{ font-size:0.65rem; padding:2px 4px; }
     .form-row{ grid-template-columns:1fr; }
+    .grid-container{ grid-template-columns:1fr; }
+    .data-card-img-wrapper{ height:320px; }
   }
 
   @media (prefers-reduced-motion: reduce){
@@ -594,16 +659,41 @@
 
     <!-- Presentation -->
     <div id="presentation" class="tab-page active">
-      <div class="hero-banner">
-        <div class="eyebrow">Since Today</div>
-        <h1>สตอรี่ของพวกเรา<br>Van de Linde MC Thailand</h1>
-        <p>ผลงาน และ ความเป็นอยู่ของพวกเราชาว MC</p>
-        <div class="hero-divider"></div>
+      <div class="hero-banner-fullscreen">
+        <div class="hero-banner">
+          <div class="eyebrow">Since Today</div>
+          <h1>สตอรี่ของพวกเรา<br>Van de Linde MC Thailand</h1>
+          <p>ผลงาน และ ความเป็นอยู่ของพวกเราชาว MC</p>
+          <div class="hero-divider"></div>
+        </div>
+
+        <!-- Hero Slider Section (สไลด์รูปภาพขนาดใหญ่เต็มหน้าเว็บ) -->
+        <div class="hero-slider-wrapper" id="sliderWrapper">
+          <button class="slider-btn prev" onclick="prevSlide()"><i class="fa-solid fa-chevron-left"></i></button>
+          <button class="slider-btn next" onclick="nextSlide()"><i class="fa-solid fa-chevron-right"></i></button>
+          
+          <div class="hero-slider-container" id="sliderContainer">
+            <div class="hero-slide active">
+              <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80" alt="Highlight 1">
+              <div class="hero-slide-overlay">
+                <span class="hero-slide-tag">Featured Works</span>
+                <h2 class="hero-slide-title serif">ยินดีต้อนรับสู่ Van de Linde MC Thailand</h2>
+                <p class="hero-slide-desc">รวบรวมเรื่องราว ผลงาน และความทรงจำอันทรงคุณค่าในสไตล์คลับระดับพรีเมียม</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="slider-dots" id="sliderDots">
+            <span class="dot active" onclick="goToSlide(0)"></span>
+          </div>
+        </div>
       </div>
 
       <div class="grid-header">
         <h2 class="serif">แกลเลอรี่ผลงาน</h2>
-        <span id="itemCount">Loading...</span>
+        <div class="right-tools">
+          <span id="itemCount">Loading...</span>
+        </div>
       </div>
 
       <div id="dataGrid" class="grid-container">
@@ -835,6 +925,10 @@
     let currentCategory = 'presentation';
     let loadedDataCache = [];
     let calDate = new Date();
+    
+    // SLIDER LOGIC VARIABLES
+    let currentSlide = 0;
+    let sliderTimer = null;
 
     function toggleFormFieldsByCategory(category) {
       const finOpt = document.getElementById('financeOptions');
@@ -974,6 +1068,7 @@
 
       if (category === 'events') renderCalendar(filteredData);
       if (category === 'treasury') renderExcelTable(filteredData);
+      if (category === 'presentation') setupHeroSlider(filteredData);
 
       if (!dataGrid) return;
 
@@ -1017,6 +1112,105 @@
       });
 
       initCardReveal(isPresentation ? '#dataGrid' : '#moduleDataGrid');
+    }
+
+    // ================= [ HERO SLIDER LOGIC ] =================
+    function setupHeroSlider(items) {
+      const sliderContainer = document.getElementById('sliderContainer');
+      const sliderDots = document.getElementById('sliderDots');
+      if (!sliderContainer || !sliderDots) return;
+
+      // ดึงเฉพาะรายการที่มีรูปภาพเพื่อนำมาแสดงบนสไลด์ใหญ่ (สูงสุด 5 รายการล่าสุด)
+      const slidesData = items.filter(i => i.image_url).slice(0, 5);
+
+      if (slidesData.length === 0) {
+        document.getElementById('sliderWrapper').style.display = 'none';
+        return;
+      }
+
+      document.getElementById('sliderWrapper').style.display = 'block';
+      sliderContainer.innerHTML = '';
+      sliderDots.innerHTML = '';
+
+      slidesData.forEach((item, index) => {
+        const editionNo = String(item.id).padStart(3, '0');
+        
+        sliderContainer.innerHTML += `
+          <div class="hero-slide ${index === 0 ? 'active' : ''}">
+            <img src="${item.image_url}" alt="${item.name}">
+            <div class="hero-slide-overlay">
+              <span class="hero-slide-tag">Featured • No. ${editionNo}</span>
+              <h2 class="hero-slide-title serif">${item.name}</h2>
+              <p class="hero-slide-desc">${item.bio}</p>
+            </div>
+          </div>
+        `;
+
+        sliderDots.innerHTML += `
+          <span class="dot ${index === 0 ? 'active' : ''}" onclick="goToSlide(${index})"></span>
+        `;
+      });
+
+      currentSlide = 0;
+      updateSlidePosition();
+      startAutoSlide(slidesData.length);
+    }
+
+    function updateSlidePosition() {
+      const sliderContainer = document.getElementById('sliderContainer');
+      const slides = document.querySelectorAll('.hero-slide');
+      const dots = document.querySelectorAll('.dot');
+
+      if (!sliderContainer || slides.length === 0) return;
+
+      sliderContainer.style.transform = `translateX(-${currentSlide * 100}%)`;
+
+      slides.forEach((slide, idx) => {
+        if (idx === currentSlide) slide.classList.add('active');
+        else slide.classList.remove('active');
+      });
+
+      dots.forEach((dot, idx) => {
+        if (idx === currentSlide) dot.classList.active ? dot.classList.add('active') : dot.classList.remove('active');
+        if (idx === currentSlide) dot.classList.add('active');
+        else dot.classList.remove('active');
+      });
+    }
+
+    function nextSlide() {
+      const slides = document.querySelectorAll('.hero-slide');
+      if (slides.length <= 1) return;
+      currentSlide = (currentSlide + 1) % slides.length;
+      updateSlidePosition();
+      resetAutoSlide(slides.length);
+    }
+
+    function prevSlide() {
+      const slides = document.querySelectorAll('.hero-slide');
+      if (slides.length <= 1) return;
+      currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+      updateSlidePosition();
+      resetAutoSlide(slides.length);
+    }
+
+    function goToSlide(index) {
+      const slides = document.querySelectorAll('.hero-slide');
+      currentSlide = index;
+      updateSlidePosition();
+      resetAutoSlide(slides.length);
+    }
+
+    function startAutoSlide(totalSlides) {
+      if (sliderTimer) clearInterval(sliderTimer);
+      if (totalSlides <= 1) return;
+      sliderTimer = setInterval(() => {
+        currentSlide = (currentSlide + 1) % totalSlides;
+        updateSlidePosition();
+      }, 5000);
+    }
+
+    function resetAutoSlide(totalSlides) {
+      startAutoSlide(totalSlides);
     }
 
     // ================= [แสดงผลตารางการเงิน Excel] =================
@@ -1213,7 +1407,7 @@
 
         alert('อัปเดตข้อมูลสำเร็จ!');
         closeEditModal();
- loadDataFromDB(currentCategory);
+        loadDataFromDB(currentCategory);
       } catch (err) {
         alert('เกิดข้อผิดพลาด: ' + err.message);
       } finally {
