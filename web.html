@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRESTIGE — คอลเลกชันผลงานระดับพรีเมียม</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+  :root{
+    --black:#07070a;
+    --black-2:#0d0d13;
+    --panel: rgba(19,19,27,0.68);
+    --panel-solid:#13131b;
+    --hairline: rgba(212,175,122,0.16);
+    --hairline-strong: rgba(212,175,122,0.4);
+    --gold:#d4af7a;
+    --gold-bright:#f3dfb0;
+    --gold-deep:#8f7038;
+    --emerald:#1f6f5c;
+    --emerald-bright:#33a086;
+    --ivory:#f4efe4;
+    --muted:#9a927f;
+    --shadow-deep: 0 40px 80px -30px rgba(0,0,0,0.85);
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ scroll-behavior:smooth; }
+
+  body{
+    background:var(--black);
+    color:var(--ivory);
+    font-family:'Noto Sans Thai', sans-serif;
+    min-height:100vh;
+    overflow-x:hidden;
+    position:relative;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  ::selection{ background:var(--gold-deep); color:var(--black); }
+
+  ::-webkit-scrollbar{ width:10px; }
+  ::-webkit-scrollbar-track{ background:var(--black); }
+  ::-webkit-scrollbar-thumb{ background:linear-gradient(var(--gold-deep), var(--gold)); border-radius:10px; }
+
+  h1,h2,h3,.serif{ font-family:'Noto Serif Thai', serif; }
+
+  /* ================= AMBIENT BACKGROUND ================= */
+  .bg-scene{
+    position:fixed; inset:0; z-index:-2; overflow:hidden; pointer-events:none;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(212,175,122,0.10), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 90% 100%, rgba(31,111,92,0.14), transparent 60%),
+      var(--black);
+  }
+  .grain{
+    position:fixed; inset:0; z-index:-1; opacity:0.05; pointer-events:none; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .rays{
+    position:absolute; top:-50%; left:-20%; width:140%; height:200%;
+    background:conic-gradient(from 0deg at 50% 30%, transparent 0deg, rgba(212,175,122,0.05) 8deg, transparent 20deg, transparent 340deg, rgba(212,175,122,0.05) 352deg, transparent 360deg);
+    animation:rotateRays 60s linear infinite;
+  }
+  @keyframes rotateRays{ to{ transform:rotate(360deg); } }
+
+  .dust{ position:absolute; width:3px; height:3px; border-radius:50%; background:var(--gold-bright);
+    box-shadow:0 0 6px 1px var(--gold-bright); opacity:0; animation:drift var(--dur,18s) linear infinite; animation-delay:var(--delay,0s); left:var(--x,50%); }
+  @keyframes drift{
+    0%{ opacity:0; transform:translateY(110vh) translateX(0); }
+    8%{ opacity:.8; }
+    50%{ transform:translateY(45vh) translateX(20px); }
+    92%{ opacity:.6; }
+    100%{ opacity:0; transform:translateY(-10vh) translateX(-10px); }
+  }
+
+  /* cursor spotlight */
+  .spotlight{
+    position:fixed; z-index:0; width:520px; height:520px; border-radius:50%; pointer-events:none;
+    background:radial-gradient(circle, rgba(212,175,122,0.09), transparent 70%);
+    transform:translate(-50%,-50%);
+    left:var(--mx,50%); top:var(--my,50%);
+    transition:opacity .4s ease;
+  }
+
+  /* ================= NAVBAR ================= */
+  .navbar{
+    background:rgba(7,7,10,0.7);
+    backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+    border-bottom:1px solid var(--hairline);
+    height:76px; display:flex; align-items:center; justify-content:space-between;
+    padding:0 40px; position:sticky; top:0; z-index:1000;
+    animation:dropIn .7s cubic-bezier(.2,.8,.2,1) both;
+  }
+  @keyframes dropIn{ from{ transform:translateY(-100%); opacity:0; } to{ transform:translateY(0); opacity:1; } }
+
+  .brandmark{ display:flex; align-items:center; gap:14px; }
+  .brandmark .crest{
+    width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(140deg, var(--gold-deep), var(--gold) 45%, var(--gold-bright) 55%, var(--gold-deep));
+    color:var(--black); font-size:15px; position:relative; overflow:hidden;
+    box-shadow:0 0 20px rgba(212,175,122,0.35);
+  }
+  .brandmark .crest::after{
+    content:''; position:absolute; top:0; left:-60%; width:40%; height:100%;
+    background:linear-gradient(115deg, transparent, rgba(255,255,255,0.7), transparent);
+    animation:sweep 3.2s ease-in-out infinite;
+  }
+  @keyframes sweep{ 0%{ left:-60%; } 55%{ left:130%; } 100%{ left:130%; } }
+
+  .brandmark .words{ line-height:1; }
+  .brandmark .name{ font-family:'Cormorant Garamond', serif; font-style:italic; font-weight:500; font-size:1.35rem; letter-spacing:2px; color:var(--gold-bright); }
+  .brandmark .tag{ font-size:0.62rem; letter-spacing:3px; color:var(--muted); text-transform:uppercase; }
+
+  .dropdown{ position:relative; }
+  .dropbtn{
+    background:transparent; color:var(--ivory); padding:11px 22px; font-size:14.5px; font-weight:500;
+    border:1px solid var(--hairline-strong); border-radius:2px; cursor:pointer;
+    display:flex; align-items:center; gap:10px; letter-spacing:0.5px;
+    transition:all .4s cubic-bezier(.2,.8,.2,1); position:relative; overflow:hidden;
+  }
+  .dropbtn::before{
+    content:''; position:absolute; inset:0; background:linear-gradient(90deg, var(--gold-deep), var(--gold));
+    transform:scaleX(0); transform-origin:left; transition:transform .45s cubic-bezier(.2,.8,.2,1); z-index:-1;
+  }
+  .dropbtn:hover{ color:var(--black); border-color:var(--gold); }
+  .dropbtn:hover::before{ transform:scaleX(1); }
+  .dropbtn i.fa-chevron-down{ transition:transform .35s; font-size:11px; }
+  .dropdown:hover .dropbtn i.fa-chevron-down{ transform:rotate(180deg); }
+
+  .dropdown-content{
+    position:absolute; right:0; top:130%;
+    background:rgba(13,13,19,0.97);
+    backdrop-filter:blur(20px);
+    border:1px solid var(--hairline-strong);
+    min-width:280px; max-height:75vh; overflow-y:auto;
+    box-shadow:var(--shadow-deep);
+    opacity:0; visibility:hidden; transform:translateY(-8px);
+    transition:all .35s cubic-bezier(.2,.8,.2,1);
+  }
+  .dropdown:hover .dropdown-content{ opacity:1; visibility:visible; transform:translateY(0); }
+
+  .dropdown-divider{ height:1px; background:var(--hairline-strong); margin:6px 0; }
+  .dropdown-header{ padding:10px 20px 4px; font-size:0.65rem; letter-spacing:2px; color:var(--gold); text-transform:uppercase; font-weight:600; }
+
+  .dropdown-content a{
+    color:var(--ivory); padding:14px 20px; text-decoration:none;
+    display:flex; align-items:center; justify-content:space-between; font-size:14px;
+    border-bottom:1px solid var(--hairline); transition:all .25s; opacity:0; transform:translateX(-8px);
+    cursor:pointer;
+  }
+  .dropdown:hover .dropdown-content a{ opacity:1; transform:translateX(0); }
+  .dropdown-content a:last-child{ border-bottom:none; }
+
+  .dropdown-content a .item-main{ display:flex; align-items:center; gap:14px; }
+  .dropdown-content a i{ color:var(--gold); width:18px; text-align:center; font-size:15px; }
+  .dropdown-content a .sub-text{ font-size:0.68rem; color:var(--muted); letter-spacing:1px; font-family:'Cormorant Garamond', serif; text-transform:uppercase; }
+  .dropdown-content a:hover{ background:rgba(212,175,122,0.08); padding-left:26px; color:var(--gold-bright); }
+  .dropdown-content a:hover .sub-text{ color:var(--gold); }
+
+  /* ticker */
+  .ticker{
+    border-bottom:1px solid var(--hairline); overflow:hidden; white-space:nowrap;
+    background:#0b0b10;
+    position:relative; z-index:10;
+  }
+  .ticker-track{ display:inline-flex; animation:tickerMove 26s linear infinite; padding:9px 0; }
+  .ticker-track span{ padding:0 32px; font-size:0.72rem; letter-spacing:2.5px; color:var(--gold); text-transform:uppercase; display:flex; align-items:center; gap:10px; }
+  .ticker-track span i{ font-size:6px; color:var(--emerald-bright); }
+  @keyframes tickerMove{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+
+  /* ================= LAYOUT ================= */
+  .container{ max-width:1140px; margin:0 auto; padding:0 24px 100px; position:relative; z-index:1; }
+
+  .tab-page{ display:none; }
+  .tab-page.active{ display:block; animation:pageIn .6s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes pageIn{ from{ opacity:0; transform:translateY(24px); } to{ opacity:1; transform:translateY(0); } }
+
+  /* ================= HERO ================= */
+  .hero-banner{
+    text-align:center; padding:100px 20px 70px; position:relative; overflow:hidden;
+  }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:12px; font-size:0.72rem; letter-spacing:4px;
+    color:var(--gold); text-transform:uppercase; margin-bottom:26px;
+    opacity:0; animation:riseIn .8s cubic-bezier(.2,.8,.2,1) .1s forwards;
+  }
+  .eyebrow::before,.eyebrow::after{ content:''; width:34px; height:1px; background:linear-gradient(90deg, transparent, var(--gold)); }
+  .eyebrow::after{ background:linear-gradient(90deg, var(--gold), transparent); }
+
+  .hero-banner h1{
+    font-size:clamp(2.4rem, 5vw, 4.2rem); font-weight:600; line-height:1.15; margin-bottom:22px;
+    background:linear-gradient(100deg, var(--ivory) 30%, var(--gold-bright) 50%, var(--ivory) 70%);
+    background-size:200% auto;
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+    animation:riseIn .9s cubic-bezier(.2,.8,.2,1) .25s forwards, shine 6s linear 1.2s infinite; opacity:0;
+  }
+  @keyframes shine{ to{ background-position:-200% center; } }
+  @keyframes riseIn{ from{ opacity:0; transform:translateY(28px); } to{ opacity:1; transform:translateY(0); } }
+
+  .hero-banner p{
+    color:var(--muted); font-size:1.08rem; max-width:560px; margin:0 auto;
+    opacity:0; animation:riseIn .9s cubic-bezier(.2,.8,.2,1) .4s forwards;
+  }
+  .hero-divider{
+    width:1px; height:60px; background:linear-gradient(var(--gold), transparent); margin:40px auto 0;
+    opacity:0; animation:riseIn .9s cubic-bezier(.2,.8,.2,1) .55s forwards;
+  }
+
+  /* ================= GRID / PRODUCT CARDS ================= */
+  .grid-header{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:36px; flex-wrap:wrap; gap:10px; }
+  .grid-header h2{ font-size:1.5rem; font-weight:500; color:var(--ivory); }
+  .grid-header span{ font-size:0.78rem; letter-spacing:2px; color:var(--muted); text-transform:uppercase; }
+
+  .grid-container{ display:grid; grid-template-columns:repeat(auto-fill, minmax(290px, 1fr)); gap:34px; }
+
+  .data-card{
+    background:var(--panel-solid);
+    border:1px solid var(--hairline);
+    overflow:hidden; position:relative; isolation:isolate;
+    opacity:0; transform:translateY(40px) scale(.97);
+    transition:opacity .7s cubic-bezier(.2,.8,.2,1), transform .7s cubic-bezier(.2,.8,.2,1),
+               border-color .4s, box-shadow .4s;
+  }
+  .data-card.in-view{ opacity:1; transform:translateY(0) scale(1); }
+  .data-card:hover{ border-color:var(--hairline-strong); box-shadow:var(--shadow-deep), 0 0 40px -10px rgba(212,175,122,0.25); transform:translateY(-8px); }
+
+  .card-edition{
+    position:absolute; top:16px; left:16px; z-index:3;
+    background:rgba(7,7,10,0.75); border:1px solid var(--hairline-strong);
+    color:var(--gold-bright); font-size:0.68rem; letter-spacing:1.5px; padding:5px 12px;
+    font-family:'Cormorant Garamond', serif; font-style:italic;
+    backdrop-filter:blur(6px);
+  }
+  .card-tag{
+    position:absolute; top:16px; right:0; z-index:3;
+    background:linear-gradient(120deg, var(--emerald-bright), var(--emerald));
+    color:#eafff6; font-size:0.62rem; letter-spacing:2px; padding:5px 14px 5px 16px;
+    text-transform:uppercase; clip-path:polygon(12% 0,100% 0,100% 100%,0 100%);
+  }
+
+  .data-card-img-wrapper{ width:100%; height:230px; overflow:hidden; position:relative; background:#000; }
+  .data-card img{ width:100%; height:100%; object-fit:cover; transition:transform 1s cubic-bezier(.2,.8,.2,1), filter .6s; filter:saturate(0.92) brightness(0.94); }
+  .data-card:hover img{ transform:scale(1.12); filter:saturate(1.05) brightness(1); }
+
+  .data-card-img-wrapper::before{
+    content:''; position:absolute; inset:0; z-index:2;
+    background:linear-gradient(to top, rgba(7,7,10,0.85) 0%, transparent 55%);
+  }
+  .data-card-img-wrapper::after{
+    content:''; position:absolute; top:0; left:-75%; width:50%; height:100%; z-index:3;
+    background:linear-gradient(115deg, transparent, rgba(255,255,255,0.35), transparent);
+    transition:left 1s ease;
+  }
+  .data-card:hover .data-card-img-wrapper::after{ left:125%; }
+
+  .data-card-body{ padding:26px 24px 28px; position:relative; }
+  .data-card-body h3{ font-size:1.2rem; margin-bottom:10px; color:var(--gold-bright); font-weight:500; }
+  .data-card-body p{ color:var(--muted); font-size:0.92rem; line-height:1.7; }
+  .card-rule{ width:30px; height:1px; background:var(--gold); margin:14px 0 0; transition:width .5s cubic-bezier(.2,.8,.2,1); }
+  .data-card:hover .card-rule{ width:60px; }
+
+  /* ================= FORM ================= */
+  .form-wrap{ display:flex; justify-content:center; padding-top:70px; }
+  .form-card{
+    background:var(--panel-solid); border:1px solid var(--hairline);
+    padding:52px 46px; max-width:620px; width:100%; position:relative;
+    box-shadow:var(--shadow-deep);
+    animation:riseIn .7s cubic-bezier(.2,.8,.2,1) both;
+  }
+  .form-card::before{
+    content:''; position:absolute; top:0; left:0; right:0; height:3px;
+    background:linear-gradient(90deg, var(--emerald), var(--gold), var(--emerald));
+  }
+  .form-card .eyebrow{ display:flex; justify-content:center; opacity:1; animation:none; }
+  .form-card h2{ text-align:center; font-size:1.7rem; font-weight:500; margin:14px 0 40px; color:var(--ivory); }
+
+  .form-group{ margin-bottom:30px; position:relative; }
+  .form-group label{
+    position:absolute; left:18px; top:16px; color:var(--muted); font-size:14.5px;
+    transition:all .25s cubic-bezier(.2,.8,.2,1); pointer-events:none; background:var(--panel-solid); padding:0 6px;
+  }
+  .form-group.select-group label{
+    top:-9px; left:14px; font-size:11.5px; color:var(--gold); letter-spacing:1px;
+  }
+  .form-control{
+    width:100%; padding:16px 18px; background:rgba(255,255,255,0.02);
+    border:1px solid var(--hairline-strong); color:var(--ivory); font-size:15px;
+    outline:none; transition:all .35s; font-family:inherit;
+  }
+  select.form-control option{ background:#0d0d13; color:var(--ivory); padding:10px; }
+  .form-control:focus{ border-color:var(--gold); box-shadow:0 0 0 3px rgba(212,175,122,0.14); background:rgba(212,175,122,0.03); }
+  .form-control:focus + label,
+  .form-control:not(:placeholder-shown) + label{
+    top:-9px; left:14px; font-size:11.5px; color:var(--gold); letter-spacing:1px;
+  }
+  textarea.form-control{ height:120px; resize:vertical; }
+
+  .file-drop-zone{
+    border:1px dashed var(--hairline-strong); padding:34px; text-align:center;
+    background:rgba(255,255,255,0.015); cursor:pointer; transition:all .35s; position:relative;
+  }
+  .file-drop-zone:hover{ border-color:var(--gold); background:rgba(212,175,122,0.04); }
+  .file-drop-zone i{ font-size:2rem; color:var(--gold); margin-bottom:12px; display:block; transition:transform .4s; }
+  .file-drop-zone:hover i{ transform:translateY(-4px) scale(1.05); }
+  .file-drop-zone p{ color:var(--muted); font-size:0.86rem; }
+
+  .btn-submit{
+    width:100%; padding:18px; margin-top:6px;
+    background:linear-gradient(120deg, var(--gold-deep), var(--gold) 45%, var(--gold-bright) 55%, var(--gold-deep));
+    background-size:220% auto;
+    color:var(--black); border:none; font-size:15px; font-weight:600; letter-spacing:1px; cursor:pointer;
+    transition:background-position .6s ease, transform .3s, box-shadow .3s;
+    display:flex; justify-content:center; align-items:center; gap:10px; position:relative; overflow:hidden;
+  }
+  .btn-submit:hover{ background-position:100% center; transform:translateY(-2px); box-shadow:0 14px 30px -8px rgba(212,175,122,0.5); }
+  .btn-submit:disabled{ opacity:0.55; cursor:not-allowed; transform:none; }
+  .ripple{ position:absolute; border-radius:50%; background:rgba(255,255,255,0.5); transform:scale(0); animation:rippleFx .6s ease-out; pointer-events:none; }
+  @keyframes rippleFx{ to{ transform:scale(3); opacity:0; } }
+
+  /* ================= LOADING / EMPTY / ERROR ================= */
+  .shimmer{
+    background:linear-gradient(100deg, rgba(255,255,255,0.02) 0%, rgba(212,175,122,0.12) 50%, rgba(255,255,255,0.02) 100%);
+    background-size:200% 100%; animation:shimmerMove 1.6s infinite;
+  }
+  @keyframes shimmerMove{ 0%{ background-position:-200% 0; } 100%{ background-position:200% 0; } }
+  .loading-card{ height:330px; border:1px solid var(--hairline); }
+
+  .status-msg{ text-align:center; grid-column:1/-1; padding:80px 20px; color:var(--muted); }
+  .status-msg i{ font-size:2.6rem; margin-bottom:18px; color:var(--gold); display:inline-block; animation:floatIcon 3s ease-in-out infinite; }
+  @keyframes floatIcon{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-8px); } }
+  .status-msg h3{ font-family:'Noto Serif Thai',serif; font-size:1.2rem; color:var(--ivory); margin-bottom:10px; font-weight:500; }
+  .status-msg p{ font-size:0.9rem; }
+
+  @media (max-width:640px){
+    .navbar{ padding:0 18px; }
+    .brandmark .tag{ display:none; }
+    .form-card{ padding:38px 24px; }
+    .hero-banner{ padding:70px 16px 50px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="bg-scene"><div class="rays"></div></div>
+  <div class="grain"></div>
+  <div class="spotlight" id="spotlight"></div>
+
+  <div class="dust" style="--x:8%; --delay:0s; --dur:16s;"></div>
+  <div class="dust" style="--x:22%; --delay:3s; --dur:20s;"></div>
+  <div class="dust" style="--x:38%; --delay:1s; --dur:14s;"></div>
+  <div class="dust" style="--x:55%; --delay:5s; --dur:22s;"></div>
+  <div class="dust" style="--x:68%; --delay:2s; --dur:17s;"></div>
+  <div class="dust" style="--x:79%; --delay:6s; --dur:19s;"></div>
+  <div class="dust" style="--x:90%; --delay:4s; --dur:15s;"></div>
+  <div class="dust" style="--x:14%; --delay:8s; --dur:21s;"></div>
+  <div class="dust" style="--x:47%; --delay:10s; --dur:18s;"></div>
+  <div class="dust" style="--x:95%; --delay:7s; --dur:16s;"></div>
+
+  <nav class="navbar">
+    <div class="brandmark">
+      <div class="crest"><i class="fa-solid fa-gem"></i></div>
+      <div class="words">
+        <div class="name">MY_PROJECT_NAME</div>
+        <div class="tag">Curated Collection</div>
+      </div>
+    </div>
+
+    <div class="dropdown">
+      <button class="dropbtn">
+        <i class="fa-solid fa-compass"></i>
+        <span>เลือกเมนูการทำงาน</span>
+        <i class="fa-solid fa-chevron-down"></i>
+      </button>
+      <div class="dropdown-content">
+        <!-- เมนูหลักระบบเดิม -->
+        <a onclick="switchTab('presentation')">
+          <div class="item-main"><i class="fa-solid fa-grip-vertical"></i> <span>หน้าหลัก (Presentation)</span></div>
+        </a>
+        <a onclick="switchTab('input')">
+          <div class="item-main"><i class="fa-solid fa-circle-plus"></i> <span>หน้าใส่ข้อมูล (Input Data)</span></div>
+        </a>
+
+        <div class="dropdown-divider"></div>
+        <div class="dropdown-header">Club Modules</div>
+
+        <!-- รายการเมนูทั้งหมด 14 รายการ -->
+        <a onclick="switchTab('dashboard')">
+          <div class="item-main"><i class="fa-solid fa-border-all"></i> <span>DASHBOARD</span></div>
+          <span class="sub-text">เข้าสู่บ้าน</span>
+        </a>
+        <a onclick="switchTab('members')">
+          <div class="item-main"><i class="fa-solid fa-users"></i> <span>สมาชิก</span></div>
+          <span class="sub-text">CHARACTER DATABASE</span>
+        </a>
+        <a onclick="switchTab('treasury')">
+          <div class="item-main"><i class="fa-solid fa-coins"></i> <span>การเงิน</span></div>
+          <span class="sub-text">CLUB TREASURY</span>
+        </a>
+        <a onclick="switchTab('welfare')">
+          <div class="item-main"><i class="fa-solid fa-heart-pulse"></i> <span>สวัสดิการ</span></div>
+          <span class="sub-text">WELFARE</span>
+        </a>
+        <a onclick="switchTab('missions')">
+          <div class="item-main"><i class="fa-solid fa-bullseye"></i> <span>ภารกิจ</span></div>
+          <span class="sub-text">MISSIONS</span>
+        </a>
+        <a onclick="switchTab('events')">
+          <div class="item-main"><i class="fa-solid fa-calendar-days"></i> <span>กิจกรรม</span></div>
+          <span class="sub-text">EVENTS</span>
+        </a>
+        <a onclick="switchTab('ceremonies')">
+          <div class="item-main"><i class="fa-solid fa-fire-flame-curved"></i> <span>พิธีกรรม</span></div>
+          <span class="sub-text">CEREMONIES</span>
+        </a>
+        <a onclick="switchTab('story')">
+          <div class="item-main"><i class="fa-solid fa-scroll"></i> <span>เรื่องราว</span></div>
+          <span class="sub-text">STORY ARCHIVE</span>
+        </a>
+        <a onclick="switchTab('archives')">
+          <div class="item-main"><i class="fa-solid fa-book-bookmark"></i> <span>ARCHIVES</span></div>
+          <span class="sub-text">LORE & WORLD</span>
+        </a>
+        <a onclick="switchTab('alliances')">
+          <div class="item-main"><i class="fa-solid fa-handshake"></i> <span>พันธมิตร</span></div>
+          <span class="sub-text">ALLIANCES</span>
+        </a>
+        <a onclick="switchTab('vehicles')">
+          <div class="item-main"><i class="fa-solid fa-car"></i> <span>รถประจำตำแหน่ง</span></div>
+          <span class="sub-text">CLUB VEHICLES</span>
+        </a>
+        <a onclick="switchTab('announcements')">
+          <div class="item-main"><i class="fa-solid fa-bullhorn"></i> <span>ประกาศ</span></div>
+          <span class="sub-text">ANNOUNCEMENTS</span>
+        </a>
+        <a onclick="switchTab('prospect')">
+          <div class="item-main"><i class="fa-solid fa-shield-halved"></i> <span>PROSPECT</span></div>
+          <span class="sub-text">TRACKING</span>
+        </a>
+        <a onclick="switchTab('auditlog')">
+          <div class="item-main"><i class="fa-solid fa-clock-rotate-left"></i> <span>AUDIT LOG</span></div>
+          <span class="sub-text">TRANSPARENCY</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="ticker">
+    <div class="ticker-track">
+      <span><i class="fa-solid fa-circle"></i> จัดเก็บข้อมูลอย่างปลอดภัย</span>
+      <span><i class="fa-solid fa-circle"></i> คัดสรรผลงานอย่างพิถีพิถัน</span>
+      <span><i class="fa-solid fa-circle"></i> นำเสนอในระดับพรีเมียม</span>
+      <span><i class="fa-solid fa-circle"></i> จัดเก็บข้อมูลอย่างปลอดภัย</span>
+      <span><i class="fa-solid fa-circle"></i> คัดสรรผลงานอย่างพิถีพิถัน</span>
+      <span><i class="fa-solid fa-circle"></i> นำเสนอในระดับพรีเมียม</span>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- Presentation -->
+    <div id="presentation" class="tab-page active">
+      <div class="hero-banner">
+        <div class="eyebrow">Since Today</div>
+        <h1>ผลงานทุกชิ้น<br>คือคอลเลกชันที่ควรค่าแก่การจดจำ</h1>
+        <p>นำเสนอผลงานและข้อมูลทั้งหมดที่ถูกจัดเก็บในระบบอย่างปลอดภัยและหรูหรา</p>
+        <div class="hero-divider"></div>
+      </div>
+
+      <div class="grid-header">
+        <h2 class="serif">แกลเลอรี่ผลงาน</h2>
+        <span id="itemCount">Loading...</span>
+      </div>
+
+      <div id="dataGrid" class="grid-container">
+        <div class="shimmer loading-card"></div>
+        <div class="shimmer loading-card"></div>
+        <div class="shimmer loading-card"></div>
+      </div>
+    </div>
+
+    <!-- Input Data -->
+    <div id="input" class="tab-page">
+      <div class="form-wrap">
+        <div class="form-card">
+          <div class="eyebrow">Concierge Submission</div>
+          <h2 class="serif">เพิ่มข้อมูลใหม่เข้าระบบ</h2>
+
+          <!-- ตัวเลือกระบบหมวดหมู่เป้าหมาย -->
+          <div class="form-group select-group">
+            <select id="inputCategory" class="form-control">
+              <option value="presentation">หน้าหลัก (Presentation)</option>
+              <option value="dashboard">DASHBOARD — เข้าสู่บ้าน</option>
+              <option value="members">สมาชิก — CHARACTER DATABASE</option>
+              <option value="treasury">การเงิน — CLUB TREASURY</option>
+              <option value="welfare">สวัสดิการ — WELFARE</option>
+              <option value="missions">ภารกิจ — MISSIONS</option>
+              <option value="events">กิจกรรม — EVENTS</option>
+              <option value="ceremonies">พิธีกรรม — CEREMONIES</option>
+              <option value="story">เรื่องราว — STORY ARCHIVE</option>
+              <option value="archives">ARCHIVES — LORE & WORLD</option>
+              <option value="alliances">พันธมิตร — ALLIANCES</option>
+              <option value="vehicles">รถประจำตำแหน่ง — CLUB VEHICLES</option>
+              <option value="announcements">ประกาศ — ANNOUNCEMENTS</option>
+              <option value="prospect">PROSPECT — TRACKING</option>
+              <option value="auditlog">AUDIT LOG — TRANSPARENCY</option>
+            </select>
+            <label>เลือกหมวดหมู่ / ระบบเป้าหมาย</label>
+          </div>
+
+          <div class="form-group">
+            <input type="text" id="inputName" class="form-control" placeholder=" ">
+            <label>ชื่อโปรเจกต์ / หัวข้อเรื่อง</label>
+          </div>
+
+          <div class="form-group">
+            <textarea id="inputBio" class="form-control" placeholder=" "></textarea>
+            <label>คำบรรยาย / รายละเอียด</label>
+          </div>
+
+          <div class="form-group">
+            <div class="file-drop-zone" onclick="document.getElementById('inputFile').click()">
+              <i class="fa-solid fa-file-image"></i>
+              <p id="fileNameDisplay">คลิกเพื่อเลือกไฟล์รูปภาพ (PNG, JPG, WEBP)</p>
+              <input type="file" id="inputFile" accept="image/*" style="display:none;" onchange="updateFileName(this)">
+            </div>
+          </div>
+
+          <button id="btnSave" class="btn-submit" onclick="uploadAndSaveData(event)">
+            <i class="fa-solid fa-paper-plane"></i>
+            <span>บันทึกและส่งข้อมูลเข้า Database</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Generic Module Section สำหรับแสดงผลข้อมูลของหมวดหมู่ต่างๆ -->
+    <div id="generic-module" class="tab-page">
+      <div class="hero-banner">
+        <div class="eyebrow" id="moduleSub">SUBTITLE</div>
+        <h1 id="moduleTitle">TITLE</h1>
+        <p id="moduleDesc">ระบบจัดการข้อมูลและบันทึกประวัติ</p>
+        <div class="hero-divider"></div>
+      </div>
+
+      <div class="grid-header">
+        <h2 class="serif">รายการข้อมูลในระบบ</h2>
+        <span id="moduleItemCount">Loading...</span>
+      </div>
+
+      <div id="moduleDataGrid" class="grid-container">
+        <div class="shimmer loading-card"></div>
+        <div class="shimmer loading-card"></div>
+        <div class="shimmer loading-card"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // -------------------------------------------------------------
+    // ตั้งค่าเชื่อมต่อ SUPABASE (กรอก Key ของคุณตรงนี้)
+    // -------------------------------------------------------------
+    const SUPABASE_URL = 'https://YOUR_PROJECT_ID.supabase.co';
+    const SUPABASE_KEY = 'YOUR_ANON_KEY';
+
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // [เปลี่ยนหน้า Tab พร้อม Animation และโหลดข้อมูลตามหมวดหมู่]
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-page').forEach(page => page.classList.remove('active'));
+      
+      const predefinedTabs = ['presentation', 'input'];
+      if (predefinedTabs.includes(tabName)) {
+        const activeTab = document.getElementById(tabName);
+        activeTab.classList.add('active');
+        if (tabName === 'presentation') {
+          loadDataFromDB('presentation');
+        }
+      } else {
+        const genericTab = document.getElementById('generic-module');
+        const titles = {
+          dashboard: ['DASHBOARD', 'เข้าสู่บ้าน', 'แผงควบคุมและภาพรวมทั้งหมดขององค์กร'],
+          members: ['สมาชิก', 'CHARACTER DATABASE', 'ฐานข้อมูลและประวัติสมาชิกทั้งหมดในสังกัด'],
+          treasury: ['การเงิน', 'CLUB TREASURY', 'ระบบบริหารจัดการคลังและการเงินประจำคลับ'],
+          welfare: ['สวัสดิการ', 'WELFARE', 'ระบบสวัสดิการและการดูแลสมาชิก'],
+          missions: ['ภารกิจ', 'MISSIONS', 'รายการภารกิจและเป้าหมายที่ต้องดำเนินการ'],
+          events: ['กิจกรรม', 'EVENTS', 'ตารางกิจกรรมและงานอีเวนต์ที่กำลังจะมาถึง'],
+          ceremonies: ['พิธีกรรม', 'CEREMONIES', 'พิธีกรรมและงานวาระสำคัญของคลับ'],
+          story: ['เรื่องราว', 'STORY ARCHIVE', 'คลังบันทึกประวัติศาสตร์และเรื่องราวที่ผ่านมา'],
+          archives: ['ARCHIVES', 'LORE & WORLD', 'ข้อมูลเชิงลึก โลกทัศน์ และปูมหลังขององค์กร'],
+          alliances: ['พันธมิตร', 'ALLIANCES', 'รายชื่อและข้อตกลงร่วมกับกลุ่มพันธมิตร'],
+          vehicles: ['รถประจำตำแหน่ง', 'CLUB VEHICLES', 'รายการพาหนะและรถประจำตำแหน่งในสังกัด'],
+          announcements: ['ประกาศ', 'ANNOUNCEMENTS', 'ข่าวสาร ประกาศสำคัญ และคำสั่งการ'],
+          prospect: ['PROSPECT', 'TRACKING', 'ระบบติดตามและตรวจสอบผู้ลงสมัครสมาชิกใหม่'],
+          auditlog: ['AUDIT LOG', 'TRANSPARENCY', 'บันทึกประวัติการทำงานและความโปร่งใสของระบบ']
+        };
+
+        if (titles[tabName]) {
+          document.getElementById('moduleTitle').innerText = titles[tabName][0];
+          document.getElementById('moduleSub').innerText = titles[tabName][1];
+          document.getElementById('moduleDesc').innerText = titles[tabName][2];
+        }
+        genericTab.classList.add('active');
+        loadDataFromDB(tabName);
+      }
+    }
+
+    // [แสดงชื่อไฟล์รูปที่เลือกใน Drop Zone]
+    function updateFileName(input) {
+      const display = document.getElementById('fileNameDisplay');
+      if (input.files && input.files[0]) {
+        display.innerHTML = `<strong style="color:var(--gold-bright);"><i class="fa-solid fa-check-circle"></i> เลือกไฟล์แล้ว:</strong> ${input.files[0].name}`;
+      } else {
+        display.innerText = 'คลิกเพื่อเลือกไฟล์รูปภาพ (PNG, JPG, WEBP)';
+      }
+    }
+
+    // [Scroll reveal สำหรับการ์ดที่เพิ่มเข้ามาใหม่]
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    function initCardReveal(gridSelector = '#dataGrid') {
+      const cards = document.querySelectorAll(`${gridSelector} .data-card`);
+      cards.forEach((card, i) => {
+        card.style.transitionDelay = `${Math.min(i * 90, 540)}ms`;
+        revealObserver.observe(card);
+      });
+    }
+
+    // [ดึงข้อมูลจาก Supabase โดยกรองตาม Category]
+    async function loadDataFromDB(category = 'presentation') {
+      const isPresentation = category === 'presentation';
+      const dataGrid = document.getElementById(isPresentation ? 'dataGrid' : 'moduleDataGrid');
+      const itemCount = document.getElementById(isPresentation ? 'itemCount' : 'moduleItemCount');
+
+      dataGrid.innerHTML = `
+        <div class="shimmer loading-card"></div>
+        <div class="shimmer loading-card"></div>
+        <div class="shimmer loading-card"></div>
+      `;
+
+      let query = supabaseClient
+        .from('portfolios')
+        .select('*')
+        .order('id', { ascending: false });
+
+      // กรองตามหมวดหมู่ถ้าไม่ใช่แบบแยกเฉพาะ
+      if (category) {
+        query = query.or(`category.eq.${category},category.is.null`);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('Fetch Error:', error);
+        dataGrid.innerHTML = `
+          <div class="status-msg">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <h3>เกิดข้อผิดพลาดในการโหลดข้อมูล</h3>
+            <p>โปรดตรวจสอบว่าได้ใส่ Supabase URL และ Key ถูกต้องแล้วหรือไม่</p>
+          </div>
+        `;
+        itemCount.innerText = '—';
+        return;
+      }
+
+      const filteredData = data.filter(item => {
+        if (category === 'presentation') {
+          return !item.category || item.category === 'presentation';
+        }
+        return item.category === category;
+      });
+
+      if (filteredData.length === 0) {
+        dataGrid.innerHTML = `
+          <div class="status-msg">
+            <i class="fa-solid fa-box-open"></i>
+            <h3>ยังไม่มีข้อมูลในหมวดหมู่นี้</h3>
+            <p>สลับไปหน้า "ใส่ข้อมูล" เพื่อเลือกหมวดหมู่นี้และสร้างข้อมูลชิ้นแรก!</p>
+          </div>
+        `;
+        itemCount.innerText = '0 ชิ้น';
+        return;
+      }
+
+      itemCount.innerText = `${filteredData.length} ชิ้นในคอลเลกชัน`;
+      dataGrid.innerHTML = '';
+      filteredData.forEach((item, idx) => {
+        const editionNo = String(item.id).padStart(3, '0');
+        dataGrid.innerHTML += `
+          <div class="data-card">
+            <div class="card-edition">No. ${editionNo}</div>
+            ${idx === 0 ? '<div class="card-tag">New</div>' : ''}
+            <div class="data-card-img-wrapper">
+              <img src="${item.image_url}" alt="${item.name}" loading="lazy">
+            </div>
+            <div class="data-card-body">
+              <h3>${item.name}</h3>
+              <p>${item.bio}</p>
+              <div class="card-rule"></div>
+            </div>
+          </div>
+        `;
+      });
+
+      initCardReveal(isPresentation ? '#dataGrid' : '#moduleDataGrid');
+    }
+
+    // [Ripple effect บนปุ่ม]
+    function spawnRipple(e, btn) {
+      const rect = btn.getBoundingClientRect();
+      const ripple = document.createElement('span');
+      ripple.className = 'ripple';
+      ripple.style.left = (e.clientX - rect.left) + 'px';
+      ripple.style.top = (e.clientY - rect.top) + 'px';
+      ripple.style.width = ripple.style.height = Math.max(rect.width, rect.height) + 'px';
+      btn.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 650);
+    }
+
+    // [อัปโหลดรูปภาพและเซฟข้อมูลพร้อมระบุหมวดหมู่ลง Supabase]
+    async function uploadAndSaveData(evt) {
+      const btnSave = document.getElementById('btnSave');
+      if (evt) spawnRipple(evt, btnSave);
+
+      const category = document.getElementById('inputCategory').value;
+      const name = document.getElementById('inputName').value.trim();
+      const bio = document.getElementById('inputBio').value.trim();
+      const fileInput = document.getElementById('inputFile');
+      const file = fileInput.files[0];
+
+      if (!name || !bio || !file) {
+        alert('กรุณากรอกข้อมูลและเลือกไฟล์รูปภาพให้ครบถ้วนก่อนบันทึกครับ');
+        return;
+      }
+
+      btnSave.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>กำลังอัปโหลดข้อมูล...</span>`;
+      btnSave.disabled = true;
+
+      try {
+        const fileName = `${Date.now()}_${file.name}`;
+        const { error: uploadError } = await supabaseClient
+          .storage
+          .from('portfolio_images')
+          .upload(fileName, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabaseClient
+          .storage
+          .from('portfolio_images')
+          .getPublicUrl(fileName);
+
+        const { error: insertError } = await supabaseClient
+          .from('portfolios')
+          .insert([{ 
+            name: name, 
+            bio: bio, 
+            image_url: urlData.publicUrl,
+            category: category 
+          }]);
+
+        if (insertError) throw insertError;
+
+        alert('บันทึกข้อมูลเข้าหมวดหมู่เรียบร้อยแล้ว!');
+
+        document.getElementById('inputName').value = '';
+        document.getElementById('inputBio').value = '';
+        fileInput.value = '';
+        document.getElementById('fileNameDisplay').innerText = 'คลิกเพื่อเลือกไฟล์รูปภาพ (PNG, JPG, WEBP)';
+
+        switchTab(category);
+
+      } catch (err) {
+        alert('เกิดข้อผิดพลาด: ' + err.message);
+      } finally {
+        btnSave.innerHTML = `<i class="fa-solid fa-paper-plane"></i> <span>บันทึกและส่งข้อมูลเข้า Database</span>`;
+        btnSave.disabled = false;
+      }
+    }
+
+    // [Cursor spotlight ambient glow]
+    const spotlightEl = document.getElementById('spotlight');
+    document.addEventListener('mousemove', (e) => {
+      spotlightEl.style.setProperty('--mx', e.clientX + 'px');
+      spotlightEl.style.setProperty('--my', e.clientY + 'px');
+    });
+
+    // เรียกโหลดข้อมูลตั้งแต่วินาทีแรกที่เปิดเว็บ
+    loadDataFromDB('presentation');
+  </script>
+</body>
+</html>
