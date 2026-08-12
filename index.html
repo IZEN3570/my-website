@@ -7,7 +7,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&family=CormorGaramondant+:ital,wght@0,500;1,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -28,6 +28,8 @@
     --ivory:#f4efe4;
     --muted:#9a927f;
     --shadow-deep: 0 40px 80px -30px rgba(0,0,0,0.85);
+    --danger: #e74c3c;
+    --danger-hover: #c0392b;
   }
 
   *{ box-sizing:border-box; margin:0; padding:0; }
@@ -245,6 +247,19 @@
     text-transform:uppercase; clip-path:polygon(12% 0,100% 0,100% 100%,0 100%);
   }
 
+  /* Style ปุ่มลบข้อมูล */
+  .btn-card-delete{
+    position:absolute; bottom:16px; right:16px; z-index:4;
+    background:rgba(231, 76, 60, 0.2); border:1px solid rgba(231, 76, 60, 0.5);
+    color:var(--danger); width:32px; height:32px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    transition:all .3s ease; backdrop-filter:blur(4px);
+  }
+  .btn-card-delete:hover{
+    background:var(--danger); color:#fff; transform:scale(1.1);
+    box-shadow:0 0 12px rgba(231, 76, 60, 0.6);
+  }
+
   .data-card-img-wrapper{ width:100%; height:230px; overflow:hidden; position:relative; background:#000; }
   .data-card img{ width:100%; height:100%; object-fit:cover; transition:transform 1s cubic-bezier(.2,.8,.2,1), filter .6s; filter:saturate(0.92) brightness(0.94); }
   .data-card:hover img{ transform:scale(1.12); filter:saturate(1.05) brightness(1); }
@@ -261,7 +276,7 @@
   .data-card:hover .data-card-img-wrapper::after{ left:125%; }
 
   .data-card-body{ padding:26px 24px 28px; position:relative; }
-  .data-card-body h3{ font-size:1.2rem; margin-bottom:10px; color:var(--gold-bright); font-weight:500; }
+  .data-card-body h3{ font-size:1.2rem; margin-bottom:10px; color:var(--gold-bright); font-weight:500; padding-right:20px; }
   .data-card-body p{ color:var(--muted); font-size:0.92rem; line-height:1.7; }
   .card-rule{ width:30px; height:1px; background:var(--gold); margin:14px 0 0; transition:width .5s cubic-bezier(.2,.8,.2,1); }
   .data-card:hover .card-rule{ width:60px; }
@@ -569,12 +584,15 @@
 
   <script>
     // -------------------------------------------------------------
-    // ตั้งค่าเชื่อมต่อ SUPABASE (กรอก Key ของคุณตรงนี้)
+    // ตั้งค่าเชื่อมต่อ SUPABASE
     // -------------------------------------------------------------
     const SUPABASE_URL = 'https://yzlzkidgmwltivrejdfr.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_cqNDSfqzz5eUIqZ3tTE44A_iqWZwMw-';
 
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // เก็บข้อมูลหมวดหมู่ปัจจุบันที่ใช้งานอยู่
+    let currentCategory = 'presentation';
 
     // [เปลี่ยนหน้า Tab พร้อม Animation และโหลดข้อมูลตามหมวดหมู่]
     function switchTab(tabName) {
@@ -585,6 +603,7 @@
         const activeTab = document.getElementById(tabName);
         activeTab.classList.add('active');
         if (tabName === 'presentation') {
+          currentCategory = 'presentation';
           loadDataFromDB('presentation');
         }
       } else {
@@ -612,6 +631,7 @@
           document.getElementById('moduleDesc').innerText = titles[tabName][2];
         }
         genericTab.classList.add('active');
+        currentCategory = tabName;
         loadDataFromDB(tabName);
       }
     }
@@ -661,7 +681,6 @@
         .select('*')
         .order('id', { ascending: false });
 
-      // กรองตามหมวดหมู่ถ้าไม่ใช่แบบแยกเฉพาะ
       if (category) {
         query = query.or(`category.eq.${category},category.is.null`);
       }
@@ -704,6 +723,7 @@
       dataGrid.innerHTML = '';
       filteredData.forEach((item, idx) => {
         const editionNo = String(item.id).padStart(3, '0');
+        // เพิ่มปุ่มลบ (btn-card-delete) ส่ง id และ imageUrl ไปยังฟังก์ชัน deleteDataItem
         dataGrid.innerHTML += `
           <div class="data-card">
             <div class="card-edition">No. ${editionNo}</div>
@@ -715,12 +735,48 @@
               <h3>${item.name}</h3>
               <p>${item.bio}</p>
               <div class="card-rule"></div>
+              <button class="btn-card-delete" onclick="deleteDataItem(${item.id}, '${item.image_url}')" title="ลบข้อมูล">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
             </div>
           </div>
         `;
       });
 
       initCardReveal(isPresentation ? '#dataGrid' : '#moduleDataGrid');
+    }
+
+    // [ฟังก์ชันสำหรับลบข้อมูลตาม ID และลบรูปภาพใน Storage]
+    async function deleteDataItem(id, imageUrl) {
+      if (!confirm('คุณแน่ใจหรือว่าต้องการลบรายการนี้ออกจากระบบ?')) {
+        return;
+      }
+
+      try {
+        // 1. ลบไฟล์ภาพจาก Supabase Storage (ถ้ามี)
+        if (imageUrl) {
+          const parts = imageUrl.split('/portfolio_images/');
+          if (parts.length > 1) {
+            const fileName = parts[1];
+            await supabaseClient.storage.from('portfolio_images').remove([fileName]);
+          }
+        }
+
+        // 2. ลบแถวข้อมูลในตาราง portfolios
+        const { error } = await supabaseClient
+          .from('portfolios')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+
+        alert('ลบข้อมูลเรียบร้อยแล้ว!');
+        // โหลดข้อมูลหมวดหมู่ปัจจุบันใหม่
+        loadDataFromDB(currentCategory);
+
+      } catch (err) {
+        alert('เกิดข้อผิดพลาดในการลบข้อมูล: ' + err.message);
+      }
     }
 
     // [Ripple effect บนปุ่ม]
