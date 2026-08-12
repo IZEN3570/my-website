@@ -247,20 +247,25 @@
     text-transform:uppercase; clip-path:polygon(12% 0,100% 0,100% 100%,0 100%);
   }
 
-  /* Style ปุ่มลบข้อมูล */
-  .btn-card-delete{
+  /* ปุ่มการจัดการของการ์ด (แก้ไข / ลบ) */
+  .card-actions{
     position:absolute; bottom:16px; right:16px; z-index:4;
-    background:rgba(231, 76, 60, 0.2); border:1px solid rgba(231, 76, 60, 0.5);
-    color:var(--danger); width:32px; height:32px; border-radius:50%;
+    display:flex; gap:8px;
+  }
+  .btn-card-action{
+    background:rgba(19, 19, 27, 0.7); border:1px solid var(--hairline-strong);
+    color:var(--gold); width:32px; height:32px; border-radius:50%;
     display:flex; align-items:center; justify-content:center; cursor:pointer;
-    transition:all .3s ease; backdrop-filter:blur(4px);
+    transition:all .3s ease; backdrop-filter:blur(6px); font-size:12px;
   }
-  .btn-card-delete:hover{
-    background:var(--danger); color:#fff; transform:scale(1.1);
-    box-shadow:0 0 12px rgba(231, 76, 60, 0.6);
+  .btn-card-action:hover{
+    background:var(--gold); color:var(--black); transform:scale(1.1);
+    box-shadow:0 0 12px rgba(212,175,122,0.5);
   }
+  .btn-card-action.delete{ color:var(--danger); border-color:rgba(231,76,60,0.4); }
+  .btn-card-action.delete:hover{ background:var(--danger); color:#fff; box-shadow:0 0 12px rgba(231,76,60,0.6); }
 
-  .data-card-img-wrapper{ width:100%; height:230px; overflow:hidden; position:relative; background:#000; }
+  .data-card-img-wrapper{ width:100%; height:230px; overflow:hidden; position:relative; background:#000; cursor:pointer; }
   .data-card img{ width:100%; height:100%; object-fit:cover; transition:transform 1s cubic-bezier(.2,.8,.2,1), filter .6s; filter:saturate(0.92) brightness(0.94); }
   .data-card:hover img{ transform:scale(1.12); filter:saturate(1.05) brightness(1); }
 
@@ -276,7 +281,7 @@
   .data-card:hover .data-card-img-wrapper::after{ left:125%; }
 
   .data-card-body{ padding:26px 24px 28px; position:relative; }
-  .data-card-body h3{ font-size:1.2rem; margin-bottom:10px; color:var(--gold-bright); font-weight:500; padding-right:20px; }
+  .data-card-body h3{ font-size:1.2rem; margin-bottom:10px; color:var(--gold-bright); font-weight:500; padding-right:50px; }
   .data-card-body p{ color:var(--muted); font-size:0.92rem; line-height:1.7; }
   .card-rule{ width:30px; height:1px; background:var(--gold); margin:14px 0 0; transition:width .5s cubic-bezier(.2,.8,.2,1); }
   .data-card:hover .card-rule{ width:60px; }
@@ -338,6 +343,36 @@
   .btn-submit:disabled{ opacity:0.55; cursor:not-allowed; transform:none; }
   .ripple{ position:absolute; border-radius:50%; background:rgba(255,255,255,0.5); transform:scale(0); animation:rippleFx .6s ease-out; pointer-events:none; }
   @keyframes rippleFx{ to{ transform:scale(3); opacity:0; } }
+
+  /* ================= MODAL & LIGHTBOX POPUPS ================= */
+  .modal-overlay{
+    position:fixed; inset:0; z-index:2000; background:rgba(0,0,0,0.85); backdrop-filter:blur(10px);
+    display:flex; align-items:center; justify-content:center; opacity:0; visibility:hidden;
+    transition:all .35s ease; padding:20px;
+  }
+  .modal-overlay.active{ opacity:1; visibility:visible; }
+
+  /* Lightbox รูปภาพเต็มจอ */
+  .lightbox-content{
+    max-width:90vw; max-height:85vh; position:relative;
+    transform:scale(0.9); transition:transform .35s cubic-bezier(.2,.8,.2,1);
+  }
+  .modal-overlay.active .lightbox-content{ transform:scale(1); }
+  .lightbox-content img{ max-width:100%; max-height:85vh; border:1px solid var(--hairline-strong); box-shadow:var(--shadow-deep); object-fit:contain; }
+
+  .modal-close{
+    position:absolute; top:-40px; right:0; color:var(--gold); font-size:24px; cursor:pointer;
+    transition:color .25s;
+  }
+  .modal-close:hover{ color:var(--gold-bright); }
+
+  /* Modal แก้ไขข้อมูล */
+  .edit-modal-card{
+    background:var(--panel-solid); border:1px solid var(--hairline-strong);
+    padding:40px; max-width:550px; width:100%; position:relative;
+    box-shadow:var(--shadow-deep); transform:translateY(20px); transition:transform .35s;
+  }
+  .modal-overlay.active .edit-modal-card{ transform:translateY(0); }
 
   /* ================= LOADING / EMPTY / ERROR ================= */
   .shimmer{
@@ -546,7 +581,7 @@
           <div class="form-group">
             <div class="file-drop-zone" onclick="document.getElementById('inputFile').click()">
               <i class="fa-solid fa-file-image"></i>
-              <p id="fileNameDisplay">คลิกเพื่อเลือกไฟล์รูปภาพ (PNG, JPG, WEBP)</p>
+              <p id="fileNameDisplay">คลิกเพื่อเลือกไฟล์รูปภาพ (ไม่บังคับ - PNG, JPG, WEBP)</p>
               <input type="file" id="inputFile" accept="image/*" style="display:none;" onchange="updateFileName(this)">
             </div>
           </div>
@@ -582,6 +617,49 @@
 
   </div>
 
+  <!-- Image Lightbox Modal Pop-up -->
+  <div id="imageModal" class="modal-overlay" onclick="closeImageModal(event)">
+    <div class="lightbox-content" onclick="event.stopPropagation()">
+      <div class="modal-close" onclick="closeImageModal()"><i class="fa-solid fa-xmark"></i></div>
+      <img id="lightboxImg" src="" alt="Full Preview">
+    </div>
+  </div>
+
+  <!-- Edit Data Modal Pop-up -->
+  <div id="editModal" class="modal-overlay" onclick="closeEditModal(event)">
+    <div class="edit-modal-card" onclick="event.stopPropagation()">
+      <div class="modal-close" onclick="closeEditModal()"><i class="fa-solid fa-xmark"></i></div>
+      <div class="eyebrow">Update Information</div>
+      <h2 class="serif" style="text-align:center; margin:10px 0 26px;">แก้ไขข้อมูล</h2>
+
+      <input type="hidden" id="editId">
+      <input type="hidden" id="editOldImageUrl">
+
+      <div class="form-group">
+        <input type="text" id="editName" class="form-control" placeholder=" ">
+        <label>ชื่อโปรเจกต์ / หัวข้อเรื่อง</label>
+      </div>
+
+      <div class="form-group">
+        <textarea id="editBio" class="form-control" placeholder=" "></textarea>
+        <label>คำบรรยาย / รายละเอียด</label>
+      </div>
+
+      <div class="form-group">
+        <div class="file-drop-zone" onclick="document.getElementById('editFile').click()">
+          <i class="fa-solid fa-camera"></i>
+          <p id="editFileNameDisplay">อัปโหลดเปลี่ยนรูปภาพใหม่ (ถ้าต้องการ)</p>
+          <input type="file" id="editFile" accept="image/*" style="display:none;" onchange="updateEditFileName(this)">
+        </div>
+      </div>
+
+      <button id="btnUpdate" class="btn-submit" onclick="submitEditData(event)">
+        <i class="fa-solid fa-floppy-disk"></i>
+        <span>อัปเดตข้อมูล</span>
+      </button>
+    </div>
+  </div>
+
   <script>
     // -------------------------------------------------------------
     // ตั้งค่าเชื่อมต่อ SUPABASE
@@ -591,8 +669,11 @@
 
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // เก็บข้อมูลหมวดหมู่ปัจจุบันที่ใช้งานอยู่
+    // รูป Placeholder เริ่มต้นกรณีที่ผู้ใช้ไม่แนบไฟล์รูป
+    const DEFAULT_IMAGE = 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80';
+
     let currentCategory = 'presentation';
+    let loadedDataCache = []; // เก็บ Data สำหรับการค้นหาอ้างอิงตอนแก้ไข
 
     // [เปลี่ยนหน้า Tab พร้อม Animation และโหลดข้อมูลตามหมวดหมู่]
     function switchTab(tabName) {
@@ -642,7 +723,16 @@
       if (input.files && input.files[0]) {
         display.innerHTML = `<strong style="color:var(--gold-bright);"><i class="fa-solid fa-check-circle"></i> เลือกไฟล์แล้ว:</strong> ${input.files[0].name}`;
       } else {
-        display.innerText = 'คลิกเพื่อเลือกไฟล์รูปภาพ (PNG, JPG, WEBP)';
+        display.innerText = 'คลิกเพื่อเลือกไฟล์รูปภาพ (ไม่บังคับ - PNG, JPG, WEBP)';
+      }
+    }
+
+    function updateEditFileName(input) {
+      const display = document.getElementById('editFileNameDisplay');
+      if (input.files && input.files[0]) {
+        display.innerHTML = `<strong style="color:var(--gold-bright);"><i class="fa-solid fa-check-circle"></i> เปลี่ยนรูปใหม่:</strong> ${input.files[0].name}`;
+      } else {
+        display.innerText = 'อัปโหลดเปลี่ยนรูปภาพใหม่ (ถ้าต้องการ)';
       }
     }
 
@@ -707,6 +797,8 @@
         return item.category === category;
       });
 
+      loadedDataCache = filteredData;
+
       if (filteredData.length === 0) {
         dataGrid.innerHTML = `
           <div class="status-msg">
@@ -723,27 +815,135 @@
       dataGrid.innerHTML = '';
       filteredData.forEach((item, idx) => {
         const editionNo = String(item.id).padStart(3, '0');
-        // เพิ่มปุ่มลบ (btn-card-delete) ส่ง id และ imageUrl ไปยังฟังก์ชัน deleteDataItem
+        const displayImg = item.image_url || DEFAULT_IMAGE;
+        
         dataGrid.innerHTML += `
           <div class="data-card">
             <div class="card-edition">No. ${editionNo}</div>
             ${idx === 0 ? '<div class="card-tag">New</div>' : ''}
-            <div class="data-card-img-wrapper">
-              <img src="${item.image_url}" alt="${item.name}" loading="lazy">
+            <div class="data-card-img-wrapper" onclick="openImageModal('${displayImg}')">
+              <img src="${displayImg}" alt="${item.name}" loading="lazy">
             </div>
             <div class="data-card-body">
               <h3>${item.name}</h3>
               <p>${item.bio}</p>
               <div class="card-rule"></div>
-              <button class="btn-card-delete" onclick="deleteDataItem(${item.id}, '${item.image_url}')" title="ลบข้อมูล">
-                <i class="fa-solid fa-trash-can"></i>
-              </button>
+              <div class="card-actions">
+                <button class="btn-card-action" onclick="openEditModal(${item.id})" title="แก้ไขข้อมูล">
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+                <button class="btn-card-action delete" onclick="deleteDataItem(${item.id}, '${item.image_url || ''}')" title="ลบข้อมูล">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </div>
             </div>
           </div>
         `;
       });
 
       initCardReveal(isPresentation ? '#dataGrid' : '#moduleDataGrid');
+    }
+
+    // [ฟังก์ชัน Pop-up พรีวิวรูปเต็มจอ]
+    function openImageModal(imgSrc) {
+      const modal = document.getElementById('imageModal');
+      document.getElementById('lightboxImg').src = imgSrc;
+      modal.classList.add('active');
+    }
+
+    function closeImageModal(e) {
+      document.getElementById('imageModal').classList.remove('active');
+    }
+
+    // [ฟังก์ชัน Pop-up แก้ไขข้อมูล]
+    function openEditModal(id) {
+      const item = loadedDataCache.find(d => d.id === id);
+      if (!item) return;
+
+      document.getElementById('editId').value = item.id;
+      document.getElementById('editName').value = item.name || '';
+      document.getElementById('editBio').value = item.bio || '';
+      document.getElementById('editOldImageUrl').value = item.image_url || '';
+      document.getElementById('editFile').value = '';
+      document.getElementById('editFileNameDisplay').innerText = 'อัปโหลดเปลี่ยนรูปภาพใหม่ (ถ้าต้องการ)';
+
+      document.getElementById('editModal').classList.add('active');
+    }
+
+    function closeEditModal() {
+      document.getElementById('editModal').classList.remove('active');
+    }
+
+    // [ส่งข้อมูลที่แก้ไขเข้า Supabase]
+    async function submitEditData(evt) {
+      const btnUpdate = document.getElementById('btnUpdate');
+      if (evt) spawnRipple(evt, btnUpdate);
+
+      const id = document.getElementById('editId').value;
+      const name = document.getElementById('editName').value.trim();
+      const bio = document.getElementById('editBio').value.trim();
+      const oldImageUrl = document.getElementById('editOldImageUrl').value;
+      const fileInput = document.getElementById('editFile');
+      const file = fileInput.files[0];
+
+      if (!name || !bio) {
+        alert('กรุณากรอกชื่อและคำบรรยายให้ครบถ้วนก่อนอัปเดตครับ');
+        return;
+      }
+
+      btnUpdate.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>กำลังบันทึก...</span>`;
+      btnUpdate.disabled = true;
+
+      try {
+        let finalImageUrl = oldImageUrl;
+
+        // ถ้ามีการอัปโหลดรูปภาพใหม่
+        if (file) {
+          const fileName = `${Date.now()}_${file.name}`;
+          const { error: uploadError } = await supabaseClient
+            .storage
+            .from('portfolio_images')
+            .upload(fileName, file);
+
+          if (uploadError) throw uploadError;
+
+          const { data: urlData } = supabaseClient
+            .storage
+            .from('portfolio_images')
+            .getPublicUrl(fileName);
+
+          finalImageUrl = urlData.publicUrl;
+
+          // ลบรูปเก่าออกเพื่อไม่ให้เปลืองพื้นที่
+          if (oldImageUrl && oldImageUrl !== DEFAULT_IMAGE) {
+            const parts = oldImageUrl.split('/portfolio_images/');
+            if (parts.length > 1) {
+              await supabaseClient.storage.from('portfolio_images').remove([parts[1]]);
+            }
+          }
+        }
+
+        const { error: updateError } = await supabaseClient
+          .from('portfolios')
+          .update({
+            name: name,
+            bio: bio,
+            image_url: finalImageUrl
+          })
+          .eq('id', id);
+
+        if (updateError) throw updateError;
+
+        alert('อัปเดตข้อมูลสำเร็จ!');
+        closeEditModal();
+        loadDataFromDB(currentCategory);
+
+      } catch (err) {
+        alert('เกิดข้อผิดพลาดในการอัปเดต: ' + err.message);
+      } finally {
+        btnUpdate.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> <span>อัปเดตข้อมูล</span>`;
+        btnUpdate.disabled = false;
+      }
     }
 
     // [ฟังก์ชันสำหรับลบข้อมูลตาม ID และลบรูปภาพใน Storage]
@@ -753,8 +953,7 @@
       }
 
       try {
-        // 1. ลบไฟล์ภาพจาก Supabase Storage (ถ้ามี)
-        if (imageUrl) {
+        if (imageUrl && imageUrl !== DEFAULT_IMAGE) {
           const parts = imageUrl.split('/portfolio_images/');
           if (parts.length > 1) {
             const fileName = parts[1];
@@ -762,7 +961,6 @@
           }
         }
 
-        // 2. ลบแถวข้อมูลในตาราง portfolios
         const { error } = await supabaseClient
           .from('portfolios')
           .delete()
@@ -771,7 +969,6 @@
         if (error) throw error;
 
         alert('ลบข้อมูลเรียบร้อยแล้ว!');
-        // โหลดข้อมูลหมวดหมู่ปัจจุบันใหม่
         loadDataFromDB(currentCategory);
 
       } catch (err) {
@@ -802,8 +999,8 @@
       const fileInput = document.getElementById('inputFile');
       const file = fileInput.files[0];
 
-      if (!name || !bio || !file) {
-        alert('กรุณากรอกข้อมูลและเลือกไฟล์รูปภาพให้ครบถ้วนก่อนบันทึกครับ');
+      if (!name || !bio) {
+        alert('กรุณากรอกชื่อโปรเจกต์และคำบรรยายให้ครบถ้วนก่อนบันทึกครับ');
         return;
       }
 
@@ -811,25 +1008,32 @@
       btnSave.disabled = true;
 
       try {
-        const fileName = `${Date.now()}_${file.name}`;
-        const { error: uploadError } = await supabaseClient
-          .storage
-          .from('portfolio_images')
-          .upload(fileName, file);
+        let publicUrl = null;
 
-        if (uploadError) throw uploadError;
+        // ถ้ามีการเลือกไฟล์ ให้ทำการอัปโหลดรูป
+        if (file) {
+          const fileName = `${Date.now()}_${file.name}`;
+          const { error: uploadError } = await supabaseClient
+            .storage
+            .from('portfolio_images')
+            .upload(fileName, file);
 
-        const { data: urlData } = supabaseClient
-          .storage
-          .from('portfolio_images')
-          .getPublicUrl(fileName);
+          if (uploadError) throw uploadError;
+
+          const { data: urlData } = supabaseClient
+            .storage
+            .from('portfolio_images')
+            .getPublicUrl(fileName);
+
+          publicUrl = urlData.publicUrl;
+        }
 
         const { error: insertError } = await supabaseClient
           .from('portfolios')
           .insert([{ 
             name: name, 
             bio: bio, 
-            image_url: urlData.publicUrl,
+            image_url: publicUrl,
             category: category 
           }]);
 
@@ -840,7 +1044,7 @@
         document.getElementById('inputName').value = '';
         document.getElementById('inputBio').value = '';
         fileInput.value = '';
-        document.getElementById('fileNameDisplay').innerText = 'คลิกเพื่อเลือกไฟล์รูปภาพ (PNG, JPG, WEBP)';
+        document.getElementById('fileNameDisplay').innerText = 'คลิกเพื่อเลือกไฟล์รูปภาพ (ไม่บังคับ - PNG, JPG, WEBP)';
 
         switchTab(category);
 
